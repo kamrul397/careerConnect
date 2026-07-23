@@ -1,6 +1,6 @@
 import "./globals.css";
 import AuthProvider from "@/providers/AuthProvider";
-import { Toaster } from "react-hot-toast";
+import { Toaster } from "@/components/ui/sonner";
 
 
 export const metadata = {
@@ -14,7 +14,7 @@ export default function RootLayout({ children }) {
       <body>
         <AuthProvider>
           {children}
-           <Toaster position="top-right" />
+            <Toaster richColors position="top-right" />
         </AuthProvider>
       </body>
     </html>

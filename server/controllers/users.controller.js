@@ -31,3 +31,25 @@ export const createUser = async (req, res) => {
     });
   }
 };
+
+
+export const getUserByEmail = async (req, res) => {
+  try {
+    const db = req.app.locals.db;
+    const usersCollection = db.collection("users");
+
+    const { email } = req.params;
+
+    const user = await usersCollection.findOne({ email });
+
+    return res.status(200).json({
+      success: true,
+      user: user || null,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
