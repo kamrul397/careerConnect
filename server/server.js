@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import { connectDB } from "./config/db.js";
 import jobsRoutes from "./routes/jobs.routes.js";
 import usersRoutes from "./routes/users.routes.js";
+import applicationsRoutes from "./routes/applications.routes.js";
 
 dotenv.config();
 
@@ -30,6 +31,8 @@ app.locals.db = db;
 app.use("/api/users", usersRoutes);
 
 app.use("/api/jobs", jobsRoutes);
+
+app.use("/api/applications", applicationsRoutes);
 
 
 // // Connect Database

@@ -18,7 +18,7 @@ import useAuth from "@/hooks/useAuth";
 // import useAuth from "@/hooks/useAuth";
 
 export default function Navbar() {
-	const { user, loading, logoutUser } = useAuth();
+	const { user, dbUser, loading } = useAuth();
 
 	return (
 		<header className="sticky top-0 z-50 border-b bg-white">
@@ -26,7 +26,7 @@ export default function Navbar() {
 				<Logo />
 
 				<div className="hidden md:flex items-center gap-8">
-					<NavLinks />
+					<NavLinks user={user} role={dbUser?.role} />
 				</div>
 
 				<div className="flex items-center gap-3">

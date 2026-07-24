@@ -15,3 +15,4 @@ export const getUserByEmail = async (email) => {
 
   return data.user;
 };
+
