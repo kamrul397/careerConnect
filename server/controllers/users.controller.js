@@ -1,3 +1,5 @@
+
+import { ObjectId } from "mongodb";
 export const createUser = async (req, res) => {
   try {
     const db = req.app.locals.db;
@@ -48,6 +50,51 @@ export const getUserByEmail = async (req, res) => {
     });
   } catch (error) {
     return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// get all users for admin
+
+
+// Get all users (Admin only)
+export const getAllUsers = async (req, res) => {
+  try {
+    const db = req.app.locals.db;
+    const usersCollection = db.collection("users");
+
+    const users = await usersCollection.find().toArray();
+
+    res.status(200).json({
+      success: true,
+      users,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Delete a user (Admin only)
+export const deleteUser = async (req, res) => {
+  try {
+    const db = req.app.locals.db;
+    const usersCollection = db.collection("users");
+
+    const { id } = req.params;
+    const result = await usersCollection.deleteOne({ _id: new ObjectId(id) });
+
+    res.status(200).json({
+      success: true,
+      message: "User deleted successfully",
+      result,
+    });
+  } catch (error) {
+    res.status(500).json({
       success: false,
       message: error.message,
     });

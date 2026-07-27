@@ -1,18 +1,13 @@
-import axios from "axios";
+import axiosInstance from "@/lib/axios";
 
-const API = process.env.NEXT_PUBLIC_API_URL;
 // saving user
 export const saveUser = async (userData) => {
-  const res = await axios.post(`${API}/api/users`, userData);
-
-  return res.data;
+	const { data } = await axiosInstance.post("/api/users", userData);
+	return data;
 };
-
 
 // get user by email
 export const getUserByEmail = async (email) => {
-  const { data } = await axios.get(`${API}/api/users/${email}`);
-
-  return data.user;
+	const { data } = await axiosInstance.get(`/api/users/${email}`);
+	return data.user;
 };
-

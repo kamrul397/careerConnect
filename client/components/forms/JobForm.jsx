@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
@@ -7,149 +8,163 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
 export default function JobForm({
-  mode = "create",
-  initialData = {},
-  onSubmit,
+	mode = "create",
+	initialData = {},
+	onSubmit,
 }) {
-  const {
-    register,
-    handleSubmit,
-    reset,
-  } = useForm({
-    defaultValues: {
-      title: initialData.title || "",
-      company: initialData.company || "",
-      location: initialData.location || "",
-      salary: initialData.salary || "",
-      type: initialData.type || "",
-      description: initialData.description || "",
-      requirements: initialData.requirements || "",
-    },
-  });
+	const { register, handleSubmit, reset } = useForm({
+		defaultValues: {
+			title: "",
+			company: "",
+			location: "",
+			salary: "",
+			type: "",
+			description: "",
+			requirements: "",
+		},
+	});
 
-  const submitHandler = (data) => {
-    onSubmit(data);
+	useEffect(() => {
+		reset({
+			title: initialData.title || "",
+			company: initialData.company || "",
+			location: initialData.location || "",
+			salary: initialData.salary || "",
+			type: initialData.type || "",
+			description: initialData.description || "",
+			requirements: initialData.requirements || "",
+		});
+	}, [initialData, reset]);
 
-    if (mode === "create") {
-      reset();
-    }
-  };
+	const submitHandler = (data) => {
+		onSubmit(data);
 
-  return (
-    <div className="max-w-4xl mx-auto p-8 border rounded-xl bg-white shadow">
-      <h1 className="text-3xl font-bold mb-2">
-        {mode === "create" ? "Post New Job" : "Update Job"}
-      </h1>
+		if (mode === "create") {
+			reset();
+		}
+	};
 
-      <p className="text-gray-500 mb-8">
-        Fill up the job information below.
-      </p>
+	return (
+		<div className="rounded-2xl border bg-white p-8 shadow-sm">
+			<div className="mb-8">
+				<h1 className="text-3xl font-bold">
+					{mode === "create" ? "Post a New Job" : "Update Job"}
+				</h1>
 
-      <form
-        onSubmit={handleSubmit(submitHandler)}
-        className="space-y-5"
-      >
-        {/* Job Title */}
-        <div>
-          <label className="block mb-2 font-medium">
-            Job Title
-          </label>
+				<p className="mt-2 text-muted-foreground">
+					Fill in the job information below.
+				</p>
+			</div>
 
-          <Input
-            placeholder="Frontend Developer"
-            {...register("title")}
-          />
-        </div>
+			<form onSubmit={handleSubmit(submitHandler)} className="space-y-6">
+				<div className="grid gap-6 md:grid-cols-2">
+					{/* Title */}
 
-        {/* Company */}
-        <div>
-          <label className="block mb-2 font-medium">
-            Company Name
-          </label>
+					<div>
+						<label htmlFor="title" className="mb-2 block font-medium">
+							Job Title
+						</label>
 
-          <Input
-            placeholder="Google"
-            {...register("company")}
-          />
-        </div>
+						<Input
+							id="title"
+							placeholder="Frontend Developer"
+							{...register("title")}
+						/>
+					</div>
 
-        {/* Location */}
-        <div>
-          <label className="block mb-2 font-medium">
-            Location
-          </label>
+					{/* Company */}
 
-          <Input
-            placeholder="Dhaka, Bangladesh"
-            {...register("location")}
-          />
-        </div>
+					<div>
+						<label htmlFor="company" className="mb-2 block font-medium">
+							Company Name
+						</label>
 
-        {/* Salary */}
-        <div>
-          <label className="block mb-2 font-medium">
-            Salary
-          </label>
+						<Input id="company" placeholder="Google" {...register("company")} />
+					</div>
 
-          <Input
-            placeholder="50000 BDT"
-            {...register("salary")}
-          />
-        </div>
+					{/* Location */}
 
-        {/* Job Type */}
-        <div>
-          <label className="block mb-2 font-medium">
-            Job Type
-          </label>
+					<div>
+						<label htmlFor="location" className="mb-2 block font-medium">
+							Location
+						</label>
 
-          <select
-            {...register("type")}
-            className="w-full border rounded-md p-2"
-          >
-            <option value="">Select Job Type</option>
-            <option value="Full Time">Full Time</option>
-            <option value="Part Time">Part Time</option>
-            <option value="Remote">Remote</option>
-            <option value="Internship">Internship</option>
-          </select>
-        </div>
+						<Input
+							id="location"
+							placeholder="Dhaka, Bangladesh"
+							{...register("location")}
+						/>
+					</div>
 
-        {/* Description */}
-        <div>
-          <label className="block mb-2 font-medium">
-            Job Description
-          </label>
+					{/* Salary */}
 
-          <Textarea
-            rows={5}
-            placeholder="Describe the job..."
-            {...register("description")}
-          />
-        </div>
+					<div>
+						<label htmlFor="salary" className="mb-2 block font-medium">
+							Salary
+						</label>
 
-        {/* Requirements */}
-        <div>
-          <label className="block mb-2 font-medium">
-            Requirements
-          </label>
+						<Input
+							id="salary"
+							placeholder="$50,000 / year"
+							{...register("salary")}
+						/>
+					</div>
 
-          <Textarea
-            rows={5}
-            placeholder="React, Next.js, MongoDB..."
-            {...register("requirements")}
-          />
-        </div>
+					{/* Type */}
 
-        <Button
-          type="submit"
-          className="w-full"
-        >
-          {mode === "create"
-            ? "Post Job"
-            : "Update Job"}
-        </Button>
-      </form>
-    </div>
-  );
+					<div className="md:col-span-2">
+						<label htmlFor="type" className="mb-2 block font-medium">
+							Job Type
+						</label>
+
+						<select
+							id="type"
+							{...register("type")}
+							className="w-full rounded-md border p-2"
+						>
+							<option value="">Select Job Type</option>
+							<option value="Full Time">Full Time</option>
+							<option value="Part Time">Part Time</option>
+							<option value="Remote">Remote</option>
+							<option value="Internship">Internship</option>
+						</select>
+					</div>
+				</div>
+
+				{/* Description */}
+
+				<div>
+					<label htmlFor="description" className="mb-2 block font-medium">
+						Job Description
+					</label>
+
+					<Textarea
+						id="description"
+						rows={6}
+						placeholder="Describe the job..."
+						{...register("description")}
+					/>
+				</div>
+
+				{/* Requirements */}
+
+				<div>
+					<label htmlFor="requirements" className="mb-2 block font-medium">
+						Requirements
+					</label>
+
+					<Textarea
+						id="requirements"
+						rows={5}
+						placeholder="React, Next.js, MongoDB..."
+						{...register("requirements")}
+					/>
+				</div>
+
+				<Button type="submit" className="w-full" size="lg">
+					{mode === "create" ? "Post Job" : "Update Job"}
+				</Button>
+			</form>
+		</div>
+	);
 }

@@ -37,14 +37,14 @@ export const createJob = async (req, res) => {
       .collection("jobs")
       .insertOne(newJob);
 
-   res.status(201).json({
-    success: true,
-    message: "Job submitted for approval.",
-    job: {
+    res.status(201).json({
+      success: true,
+      message: "Job submitted for approval.",
+      job: {
         ...newJob,
         _id: result.insertedId,
-    },
-});
+      },
+    });
 
   } catch (error) {
     console.error(error);
@@ -62,7 +62,11 @@ export const getRecruiterJobs = async (req, res) => {
   try {
     const db = req.app.locals.db;
 
+    // console.log("req.decoded =", req.decoded);
     const { email } = req.query;
+    // const email = req.decoded.email;
+
+    // console.log("email =", email);
 
     const jobs = await db
       .collection("jobs")
@@ -82,31 +86,31 @@ export const getRecruiterJobs = async (req, res) => {
 };
 
 // get job by id
-export const getJobById = async (req, res) => {
-  try {
-    const db = req.app.locals.db;
+// export const getJobById = async (req, res) => {
+//   try {
+//     const db = req.app.locals.db;
 
-    const { id } = req.params;
+//     const { id } = req.params;
 
-    const job = await db.collection("jobs").findOne({
-      _id: new ObjectId(id),
-    });
+//     const job = await db.collection("jobs").findOne({
+//       _id: new ObjectId(id),
+//     });
 
-    if (!job) {
-      return res.status(404).send({
-        message: "Job not found",
-      });
-    }
+//     if (!job) {
+//       return res.status(404).send({
+//         message: "Job not found",
+//       });
+//     }
 
-    res.send(job);
-  } catch (error) {
-    console.error(error);
+//     res.send(job);
+//   } catch (error) {
+//     console.error(error);
 
-    res.status(500).send({
-      message: "Failed to fetch job",
-    });
-  }
-};
+//     res.status(500).send({
+//       message: "Failed to fetch job",
+//     });
+//   }
+// };
 
 
 // update job
@@ -152,7 +156,7 @@ export const deleteJob = async (req, res) => {
 
     res.send(result);
   } catch (error) {
-     console.error(error);
+    console.error(error);
     res.status(500).send({
       message: "Delete failed",
     });
@@ -231,13 +235,13 @@ export const getApprovedJobs = async (req, res) => {
 };
 
 // get a single approve job
-
-
 export const getApproveJobById = async (req, res) => {
   try {
     const db = req.app.locals.db;
 
     const { id } = req.params;
+
+    console.log("id =", id);
 
     const job = await db.collection("jobs").findOne({
       _id: new ObjectId(id),

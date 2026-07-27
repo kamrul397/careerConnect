@@ -8,6 +8,7 @@ import {
 } from "firebase/auth";
 
 import { auth } from "@/lib/firebase";
+import { logoutJwt } from "./authApi";
 
 const googleProvider = new GoogleAuthProvider();
 
@@ -22,6 +23,11 @@ export const googleLogin = () =>
 
 export const logoutUser = () =>
   signOut(auth);
+
+export const logout = async () => {
+  await logoutJwt();
+  await logoutUser();
+};
 
 export const updateUserProfile = (name, photoURL) =>
   updateProfile(auth.currentUser, {

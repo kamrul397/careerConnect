@@ -1,0 +1,835 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+config/
+  db.js
+controllers/
+  applications.controller.js
+  jobs.controller.js
+  users.controller.js
+middleware/
+  verifyToken.js
+routes/
+  applications.routes.js
+  auth.routes.js
+  jobs.routes.js
+  users.routes.js
+package.json
+server.js
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="config/db.js">
+import { MongoClient, ServerApiVersion } from "mongodb";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+const uri = process.env.MONGODB_URI;
+
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  },
+});
+
+export async function connectDB() {
+  try {
+    await client.connect();
+
+    console.log("✅ MongoDB Connected");
+
+    return client.db("careerConnectDB");
+  } catch (error) {
+    console.error(error);
+  }
+}
+</file>
+
+<file path="controllers/applications.controller.js">
+import { ObjectId } from "mongodb";
+
+export const applyJob = async (req, res) => {
+  try {
+    const db = req.app.locals.db;
+
+    const application = req.body;
+
+    // Check duplicate application
+    const alreadyApplied = await db
+      .collection("applications")
+      .findOne({
+        jobId: application.jobId,
+        candidateEmail: application.candidateEmail,
+      });
+
+    if (alreadyApplied) {
+      return res.status(400).send({
+        success: false,
+        message: "You have already applied for this job.",
+      });
+    }
+
+    const result = await db
+      .collection("applications")
+      .insertOne(application);
+
+    res.status(201).send({
+      success: true,
+      insertedId: result.insertedId,
+      message: "Application submitted successfully.",
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).send({
+      success: false,
+      message: "Application failed.",
+    });
+  }
+};
+
+// Backend API to Check Application
+export const hasApplied = async (req, res) => {
+  try {
+    const db = req.app.locals.db;
+
+    const { jobId, email } = req.query;
+
+    const application = await db
+      .collection("applications")
+      .findOne({
+        jobId,
+        candidateEmail: email,
+      });
+
+    res.send({
+      applied: !!application,
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).send({
+      applied: false,
+    });
+  }
+};
+
+
+// getApplicantsByJob
+export const getApplicantsByJob = async (req, res) => {
+  try {
+    const db = req.app.locals.db;
+
+    const { jobId } = req.params;
+
+    const applicants = await db
+      .collection("applications")
+      .find({ jobId })
+      .sort({ appliedAt: -1 })
+      .toArray();
+
+    res.send(applicants);
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).send({
+      message: "Failed to load applicants",
+    });
+  }
+};
+
+
+// update applicants status
+
+export const updateApplicationStatus = async (req, res) => {
+  try {
+    const db = req.app.locals.db;
+
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const validStatus = [
+      "pending",
+      "shortlisted",
+      "interview",
+      "hired",
+      "rejected",
+    ];
+
+    if (!validStatus.includes(status)) {
+      return res.status(400).send({
+        success: false,
+        message: "Invalid status",
+      });
+    }
+
+    const result = await db.collection("applications").updateOne(
+      {
+        _id: new ObjectId(id),
+      },
+      {
+        $set: {
+          status,
+          updatedAt: new Date(),
+        },
+      }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).send({
+        success: false,
+        message: "Application not found.",
+      });
+    }
+
+    res.send({
+      success: true,
+      message: "Application status updated.",
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).send({
+      success: false,
+      message: "Failed to update application.",
+    });
+  }
+};
+
+// Get all applications of a candidate
+export const getCandidateApplications = async (req, res) => {
+  try {
+    const db = req.app.locals.db;
+
+    const { email } = req.query;
+
+    const applications = await db
+      .collection("applications")
+      .find({
+        candidateEmail: email,
+      })
+      .sort({
+        appliedAt: -1,
+      })
+      .toArray();
+
+    res.send(applications);
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).send({
+      message: "Failed to load applications.",
+    });
+  }
+};
+</file>
+
+<file path="controllers/jobs.controller.js">
+import { ObjectId } from "mongodb";
+
+export const createJob = async (req, res) => {
+  try {
+    const db = req.app.locals.db;
+
+    const {
+      title,
+      company,
+      location,
+      salary,
+      type,
+      description,
+      requirements,
+      recruiterEmail,
+      recruiterName,
+    } = req.body;
+
+    const newJob = {
+      title,
+      company,
+      location,
+      salary,
+      type,
+      description,
+      requirements,
+
+      recruiterEmail,
+      recruiterName,
+
+      status: "pending", // <-- server decides
+
+      createdAt: new Date(),
+    };
+
+    const result = await db
+      .collection("jobs")
+      .insertOne(newJob);
+
+   res.status(201).json({
+    success: true,
+    message: "Job submitted for approval.",
+    job: {
+        ...newJob,
+        _id: result.insertedId,
+    },
+});
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to create job",
+    });
+  }
+};
+
+// get recruter all jobs (myjobs)
+
+export const getRecruiterJobs = async (req, res) => {
+  try {
+    const db = req.app.locals.db;
+
+    const { email } = req.query;
+
+    const jobs = await db
+      .collection("jobs")
+      .find({ recruiterEmail: email })
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    res.json(jobs);
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch recruiter jobs",
+    });
+  }
+};
+
+// get job by id
+// export const getJobById = async (req, res) => {
+//   try {
+//     const db = req.app.locals.db;
+
+//     const { id } = req.params;
+
+//     const job = await db.collection("jobs").findOne({
+//       _id: new ObjectId(id),
+//     });
+
+//     if (!job) {
+//       return res.status(404).send({
+//         message: "Job not found",
+//       });
+//     }
+
+//     res.send(job);
+//   } catch (error) {
+//     console.error(error);
+
+//     res.status(500).send({
+//       message: "Failed to fetch job",
+//     });
+//   }
+// };
+
+
+// update job
+export const updateJob = async (req, res) => {
+  try {
+    const db = req.app.locals.db;
+
+    const { id } = req.params;
+
+    const updatedJob = req.body;
+
+    const result = await db
+      .collection("jobs")
+      .updateOne(
+        {
+          _id: new ObjectId(id),
+        },
+        {
+          $set: updatedJob,
+        }
+      );
+
+    res.send(result);
+  } catch (error) {
+    res.status(500).send({
+      message: "Update failed",
+    });
+  }
+};
+
+// delete job
+export const deleteJob = async (req, res) => {
+  try {
+    const db = req.app.locals.db;
+
+    const { id } = req.params;
+
+    const result = await db
+      .collection("jobs")
+      .deleteOne({
+        _id: new ObjectId(id),
+      });
+
+    res.send(result);
+  } catch (error) {
+     console.error(error);
+    res.status(500).send({
+      message: "Delete failed",
+    });
+  }
+};
+
+
+
+// get pending jobs for admin
+export const getPendingJobs = async (req, res) => {
+  try {
+    const db = req.app.locals.db;
+
+    const jobs = await db
+      .collection("jobs")
+      .find({ status: "pending" })
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    res.send(jobs);
+  } catch (err) {
+    res.status(500).send({
+      message: "Failed to fetch pending jobs",
+    });
+  }
+};
+
+// update job status by admin
+export const updateJobStatus = async (req, res) => {
+  try {
+    const db = req.app.locals.db;
+
+    const { id } = req.params;
+
+    const { status } = req.body;
+
+    const result = await db.collection("jobs").updateOne(
+      {
+        _id: new ObjectId(id),
+      },
+      {
+        $set: {
+          status,
+        },
+      }
+    );
+
+    res.send(result);
+
+  } catch (err) {
+
+    res.status(500).send({
+      message: "Status update failed",
+    });
+
+  }
+};
+
+// get approve job
+export const getApprovedJobs = async (req, res) => {
+  try {
+    const db = req.app.locals.db;
+
+    const jobs = await db
+      .collection("jobs")
+      .find({ status: "approved" })
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    res.send(jobs);
+  } catch (error) {
+    res.status(500).send({
+      message: "Failed to fetch jobs",
+    });
+  }
+};
+
+// get a single approve job
+export const getApproveJobById = async (req, res) => {
+  try {
+    const db = req.app.locals.db;
+
+    const { id } = req.params;
+
+    console.log("id =", id);
+
+    const job = await db.collection("jobs").findOne({
+      _id: new ObjectId(id),
+    });
+
+    if (!job) {
+      return res.status(404).send({
+        message: "Job not found",
+      });
+    }
+
+    res.send(job);
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).send({
+      message: "Failed to fetch job",
+    });
+  }
+};
+</file>
+
+<file path="controllers/users.controller.js">
+export const createUser = async (req, res) => {
+  try {
+    const db = req.app.locals.db;
+
+    const usersCollection = db.collection("users");
+
+    const user = req.body;
+
+    // Check if user already exists
+    const existingUser = await usersCollection.findOne({
+      email: user.email,
+    });
+
+    if (existingUser) {
+      return res.status(200).json({
+        success: true,
+        message: "User already exists",
+      });
+    }
+
+    const result = await usersCollection.insertOne(user);
+
+    res.status(201).json({
+      success: true,
+      insertedId: result.insertedId,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+
+export const getUserByEmail = async (req, res) => {
+  try {
+    const db = req.app.locals.db;
+    const usersCollection = db.collection("users");
+
+    const { email } = req.params;
+
+    const user = await usersCollection.findOne({ email });
+
+    return res.status(200).json({
+      success: true,
+      user: user || null,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+</file>
+
+<file path="middleware/verifyToken.js">
+import jwt from "jsonwebtoken";
+
+const verifyToken = (req, res, next) => {
+	const token = req.cookies.token;
+
+	if (!token) {
+		return res.status(401).send({
+			message: "Unauthorized Access",
+		});
+	}
+
+	jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+		if (err) {
+			return res.status(401).send({
+				message: "Invalid Token",
+			});
+		}
+
+		req.decoded = decoded;
+
+		next();
+	});
+};
+
+export default verifyToken;
+</file>
+
+<file path="routes/applications.routes.js">
+import express from "express";
+import {
+  applyJob,
+  getApplicantsByJob,
+  getCandidateApplications,
+  hasApplied,
+  updateApplicationStatus,
+} from "../controllers/applications.controller.js";
+import verifyToken from "../middleware/verifyToken.js";
+
+const router = express.Router();
+
+// 1. Static routes FIRST
+router.post("/", verifyToken, applyJob);
+router.get("/check", verifyToken, hasApplied);
+router.get("/candidate", verifyToken, getCandidateApplications); // ✅ Moved up above parameterized routes
+
+// 2. Dynamic/Parameterized routes LAST
+router.get("/:jobId/applicants", verifyToken, getApplicantsByJob);
+router.patch("/:id/status", verifyToken, updateApplicationStatus);
+
+export default router;
+</file>
+
+<file path="routes/auth.routes.js">
+import express from "express";
+import jwt from "jsonwebtoken";
+import verifyToken from "../middleware/verifyToken.js";
+
+const router = express.Router();
+
+router.post("/jwt", (req, res) => {
+	const user = req.body;
+
+	const token = jwt.sign(user, process.env.JWT_SECRET, {
+		expiresIn: "7d",
+	});
+
+	res.cookie("token", token, {
+		httpOnly: true,
+		secure: false, // true in production (HTTPS)
+		sameSite: "lax", // use "none" with secure:true if frontend/backend are on different HTTPS domains
+	});
+
+	res.send({
+		success: true,
+	});
+});
+
+router.get("/private", verifyToken, (req, res) => {
+	res.send({
+		message: "Welcome to Private Route",
+		user: req.decoded,
+	});
+});
+
+router.post("/logout", (req, res) => {
+	res.clearCookie("token", {
+		httpOnly: true,
+		secure: false,
+		sameSite: "lax",
+	});
+
+	res.send({
+		success: true,
+	});
+});
+
+export default router;
+</file>
+
+<file path="routes/jobs.routes.js">
+import express from "express";
+import {
+	createJob,
+	deleteJob,
+	getApprovedJobs,
+	getApproveJobById,
+	getPendingJobs,
+	getRecruiterJobs,
+	updateJob,
+	updateJobStatus,
+} from "../controllers/jobs.controller.js";
+import verifyToken from "../middleware/verifyToken.js";
+
+const router = express.Router();
+
+//		1. Static / Specific path routes FIRST
+router.post("/", verifyToken, createJob);
+router.get("/recruiter", verifyToken, getRecruiterJobs);
+router.get("/pending", verifyToken, getPendingJobs); // ✅ Moved above /:id
+router.get("/", getApprovedJobs);
+
+// 2. Specific sub-path parameter routes NEXT
+router.patch("/:id/status", verifyToken, updateJobStatus);
+
+// 3. Generic dynamic /:id routes LAST
+router.get("/:id", getApproveJobById);
+// router.get("/:id", getJobById);
+router.patch("/:id", verifyToken, updateJob);
+router.delete("/:id", verifyToken, deleteJob);
+
+export default router;
+</file>
+
+<file path="routes/users.routes.js">
+import express from "express";
+import { createUser, getUserByEmail } from "../controllers/users.controller.js";
+
+const router = express.Router();
+
+router.post("/", createUser);
+router.get("/:email", verifyToken, getUserByEmail);
+
+
+
+export default router;
+</file>
+
+<file path="package.json">
+{
+  "name": "server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "type": "module",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongodb": "^7.5.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
+</file>
+
+<file path="server.js">
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
+import { connectDB } from "./config/db.js";
+import jobsRoutes from "./routes/jobs.routes.js";
+import usersRoutes from "./routes/users.routes.js";
+import applicationsRoutes from "./routes/applications.routes.js";
+import authRoutes from "./routes/auth.routes.js";
+
+dotenv.config();
+console.log(process.env.JWT_SECRET);
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+// Middleware
+
+app.use(express.json());
+app.use(cookieParser());
+
+app.use(
+	cors({
+		origin: "http://localhost:3000",
+		credentials: true,
+	}),
+);
+
+const db = await connectDB();
+app.locals.db = db;
+
+app.use("/api/users", usersRoutes);
+
+app.use("/api/jobs", jobsRoutes);
+
+app.use("/api/applications", applicationsRoutes);
+
+app.use("/api/auth", authRoutes);
+
+// // Connect Database
+// const db = await connectDB();
+
+// Test Route
+app.get("/", (req, res) => {
+	res.json({
+		success: true,
+		message: "CareerConnect API is running 🚀",
+	});
+});
+
+// Test Database Route
+app.get("/test-db", async (req, res) => {
+	const collections = await db.listCollections().toArray();
+
+	res.json({
+		success: true,
+		collections,
+	});
+});
+
+app.listen(PORT, () => {
+	console.log(`🚀 Server running on http://localhost:${PORT}`);
+});
+</file>
+
+</files>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 export default function JobCard({ job }) {
+  console.log("job", job);
   return (
     <div className="rounded-xl border bg-white p-6 shadow-sm transition hover:shadow-md">
       <div className="space-y-2">

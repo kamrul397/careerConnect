@@ -11,6 +11,7 @@ import {
 	registerUser,
 } from "@/services/authService";
 import { getUserByEmail } from "@/services/userService";
+import { getJwt, testJwt } from "@/services/authApi";
 
 export const AuthContext = createContext();
 
@@ -40,6 +41,17 @@ export default function AuthProvider({ children }) {
 			setUser(currentUser);
 
 			if (currentUser) {
+				console.log(currentUser);
+				// Create HTTP-only cookie
+				await getJwt({
+					email: currentUser.email,
+					uid: currentUser.uid,
+					// role: currentUser.role
+				});
+
+				// const result = await testJwt();
+				// console.log(result);
+
 				await loadDbUser(currentUser.email);
 			} else {
 				setDbUser(null);
