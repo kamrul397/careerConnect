@@ -2,14 +2,31 @@
 
 import JobsGrid from "@/components/jobs/JobsGrid";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
-import { getApprovedJobs, getJobCategories } from "@/services/jobService";
+import { getApprovedJobs } from "@/services/jobService";
+import useCategories from "@/hooks/useCategories";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function JobsPage() {
   const [jobs, setJobs] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("All");
   const [loading, setLoading] = useState(true);
+  const { categories } = useCategories();
+
+  const searchParams = useSearchParams();
+
+  const [selectedCategory, setSelectedCategory] = useState(
+    searchParams.get("category") || "All"
+  );
+
+  useEffect(() => {
+    const category = searchParams.get("category");
+
+    if (category) {
+      setSelectedCategory(category);
+    } else {
+      setSelectedCategory("All");
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     loadData();
@@ -17,13 +34,8 @@ export default function JobsPage() {
 
   const loadData = async () => {
     try {
-      const [jobsData, categoriesData] = await Promise.all([
-        getApprovedJobs(),
-        getJobCategories(),
-      ]);
-
+      const jobsData = await getApprovedJobs();
       setJobs(jobsData);
-      setCategories(categoriesData);
     } catch (error) {
       console.error(error);
     } finally {

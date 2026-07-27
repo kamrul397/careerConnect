@@ -1,56 +1,13 @@
-import {
-  FaCode,
-  FaPaintBrush,
-  FaBullhorn,
-  FaChartLine,
-  FaDatabase,
-  FaUserTie,
-} from "react-icons/fa";
+"use client";
 
-const categoryConfig = [
-  {
-    id: 1,
-    name: "Development",
-    icon: <FaCode className="text-3xl text-blue-600" />,
-  },
-  {
-    id: 2,
-    name: "Design",
-    icon: <FaPaintBrush className="text-3xl text-blue-600" />,
-  },
-  {
-    id: 3,
-    name: "Marketing",
-    icon: <FaBullhorn className="text-3xl text-blue-600" />,
-  },
-  {
-    id: 4,
-    name: "Finance",
-    icon: <FaChartLine className="text-3xl text-blue-600" />,
-  },
-  {
-    id: 5,
-    name: "Data Science",
-    icon: <FaDatabase className="text-3xl text-blue-600" />,
-  },
-  {
-    id: 6,
-    name: "Management",
-    icon: <FaUserTie className="text-3xl text-blue-600" />,
-  },
-];
+import Link from "next/link";
+import useCategories from "@/hooks/useCategories";
+import LoadingSpinner from "@/components/shared/LoadingSpinner";
 
-export default function Categories({ categories }) {
-  const mergedCategories = categoryConfig.map((item) => {
-    const apiCategory = categories.find(
-      (cat) => cat.name === item.name
-    );
+export default function Categories() {
+  const { categories, loading } = useCategories();
 
-    return {
-      ...item,
-      jobs: apiCategory?.jobs || 0,
-    };
-  });
+  if (loading) return <LoadingSpinner />;
 
   return (
     <section className="py-20 bg-slate-50">
@@ -66,23 +23,20 @@ export default function Categories({ categories }) {
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {mergedCategories.map((category) => (
-            <div
-              key={category.id}
-              className="bg-white rounded-xl p-6 shadow hover:shadow-lg transition text-center"
+          {categories.map((category) => (
+            <Link
+              key={category.name}
+              href={`/jobs?category=${encodeURIComponent(category.name)}`}
+              className="bg-white rounded-xl p-6 shadow hover:shadow-lg transition text-center block"
             >
-              <div className="flex justify-center">
-                {category.icon}
-              </div>
-
-              <h3 className="text-xl font-semibold mt-4">
+              <h3 className="text-xl font-semibold">
                 {category.name}
               </h3>
 
               <p className="text-gray-500 mt-2">
                 {category.jobs} Jobs Available
               </p>
-            </div>
+            </Link>
           ))}
         </div>
       </div>
