@@ -6,6 +6,7 @@ export const createJob = async (req, res) => {
 
     const {
       title,
+      category,
       company,
       location,
       salary,
@@ -259,6 +260,51 @@ export const getApproveJobById = async (req, res) => {
 
     res.status(500).send({
       message: "Failed to fetch job",
+    });
+  }
+};
+
+// Get all job categories with job counts
+export const getJobCategories = async (req, res) => {
+  try {
+    const db = req.app.locals.db;
+
+    const categories = await db.collection("jobs").aggregate([
+      {
+        $match: {
+          status: "approved",
+        },
+      },
+      {
+        $group: {
+          _id: "$category",
+          jobs: {
+            $sum: 1,
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          name: "$_id",
+          jobs: 1,
+        },
+      },
+      {
+        $sort: {
+          jobs: -1,
+        },
+      },
+    ]).toArray();
+
+    console.log("categories =>", categories);
+    res.send(categories);
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).send({
+      message: "Failed to fetch categories",
     });
   }
 };

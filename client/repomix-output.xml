@@ -53,6 +53,8 @@ app/
     admin/
       pending-jobs/
         page.jsx
+      users/
+        page.jsx
       layout.jsx
       page.jsx
     candidate/
@@ -541,6 +543,148 @@ export default function PendingJobsPage() {
       <PendingJobsTable />
     
   );
+}
+</file>
+
+<file path="app/dashboard/admin/users/page.jsx">
+"use client";
+
+import { useEffect, useState } from "react";
+import { getAllUsers, deleteUser } from "@/services/userService";
+import LoadingSpinner from "@/components/shared/LoadingSpinner";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
+import { toast } from "sonner";
+import { Trash2 } from "lucide-react";
+
+export default function ManageUsersPage() {
+    const [users, setUsers] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    // Fetch users on page load
+    const fetchUsers = async () => {
+        try {
+            setLoading(true);
+            const data = await getAllUsers();
+            setUsers(data || []);
+        } catch (error) {
+            toast.error("Failed to load users: " + (error.response?.data?.message || error.message));
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchUsers();
+    }, []);
+
+    // Delete user handler
+    const handleDelete = async (userId) => {
+        if (!confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
+            return;
+        }
+
+        try {
+            setIsDeleting(true);
+            await deleteUser(userId);
+            toast.success("User deleted successfully");
+            setUsers((prev) => prev.filter((u) => u._id !== userId));
+        } catch (error) {
+            toast.error("Failed to delete user: " + (error.response?.data?.message || error.message));
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
+    if (loading) return <LoadingSpinner />;
+
+    return (
+        <div className="space-y-6">
+            {/* Page Header */}
+            <div className="flex items-center justify-between border-b pb-4">
+                <div>
+                    <h1 className="text-2xl font-bold">Manage Users</h1>
+                    <p className="text-sm text-muted-foreground">
+                        Overview of all registered users in the platform.
+                    </p>
+                </div>
+                <Badge variant="outline" className="text-sm px-3 py-1">
+                    Total Users: {users.length}
+                </Badge>
+            </div>
+
+            {/* Users Table */}
+            <div className="border rounded-lg overflow-hidden">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Name</TableHead>
+                            <TableHead>Email</TableHead>
+                            <TableHead>Role</TableHead>
+                            <TableHead className="text-right">Action</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {users.length === 0 ? (
+                            <TableRow>
+                                <TableCell colSpan={4} className="text-center py-6 text-muted-foreground">
+                                    No users found.
+                                </TableCell>
+                            </TableRow>
+                        ) : (
+                            users.map((u) => (
+                                <TableRow key={u._id}>
+                                    {/* Name */}
+                                    <TableCell className="font-medium">
+                                        {u.name || u.displayName || "N/A"}
+                                    </TableCell>
+
+                                    {/* Email */}
+                                    <TableCell>{u.email}</TableCell>
+
+                                    {/* Role */}
+                                    <TableCell>
+                                        <Badge
+                                            variant={
+                                                u.role === "admin"
+                                                    ? "destructive"
+                                                    : u.role === "recruiter"
+                                                        ? "default"
+                                                        : "secondary"
+                                            }
+                                        >
+                                            {u.role || "candidate"}
+                                        </Badge>
+                                    </TableCell>
+
+                                    {/* Action: Delete */}
+                                    <TableCell className="text-right">
+                                        <Button
+                                            size="sm"
+                                            variant="destructive"
+                                            disabled={isDeleting || u.role === "admin"}
+                                            onClick={() => handleDelete(u._id)}
+                                        >
+                                            <Trash2 className="w-4 h-4 mr-1" /> Delete
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        )}
+                    </TableBody>
+                </Table>
+            </div>
+        </div>
+    );
 }
 </file>
 
@@ -1796,13 +1940,14 @@ export default function RoleGuard({ children, role }) {
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {  getPendingJobs, updateJobStatus, } from "@/services/jobService";
+import { getPendingJobs, updateJobStatus, } from "@/services/jobService";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 
 export default function PendingJobsTable() {
   const [jobs, setJobs] = useState([]);
+  console.log("jobs", jobs)
 
   useEffect(() => {
     loadJobs();
@@ -1843,53 +1988,88 @@ export default function PendingJobsTable() {
 
             {jobs.map((job) => (
 
-              <tr
-                key={job._id}
-                className="border-t"
-              >
+              // <tr
+              //   key={job._id}
+              //   className="border-t"
+              // >
+              //   <td className="p-4">{job.title}</td>
+
+              //   <td className="p-4">{job.company}</td>
+
+              //   <td className="p-4">
+              //     {job.recruiterName}
+              //   </td>
+
+              //   <td className="p-4">
+              //     {job.status}
+              //   </td>
+
+              //   <div className="flex justify-end gap-2">
+
+              //     <Button
+              //       size="sm"
+              //       onClick={async () => {
+              //         await updateJobStatus(job._id, "approved");
+
+              //         toast.success("Job approved");
+
+              //         loadJobs();
+              //       }}
+              //     >
+              //       Approve
+              //     </Button>
+
+              //     <Button
+              //       size="sm"
+              //       variant="destructive"
+              //       onClick={async () => {
+              //         await updateJobStatus(job._id, "rejected");
+
+              //         toast.success("Job rejected");
+
+              //         loadJobs();
+              //       }}
+              //     >
+              //       Reject
+              //     </Button>
+
+              //   </div>
+
+              // </tr>
+              // ✅ CORRECT (Wrapped inside <td>):
+              <tr key={job._id} className="border-t">
                 <td className="p-4">{job.title}</td>
-
                 <td className="p-4">{job.company}</td>
+                <td className="p-4">{job.recruiterName}</td>
+                <td className="p-4">{job.status}</td>
 
-                <td className="p-4">
-                  {job.recruiterName}
+                {/* ✅ Wrap inside <td> */}
+                <td className="p-4 text-right">
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      size="sm"
+                      onClick={async () => {
+                        await updateJobStatus(job._id, "approved");
+                        toast.success("Job approved");
+                        loadJobs();
+                      }}
+                    >
+                      Approve
+                    </Button>
+
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={async () => {
+                        await updateJobStatus(job._id, "rejected");
+                        toast.success("Job rejected");
+                        loadJobs();
+                      }}
+                    >
+                      Reject
+                    </Button>
+                  </div>
                 </td>
-
-                <td className="p-4">
-                  {job.status}
-                </td>
-
-               <div className="flex justify-end gap-2">
-
-  <Button
-    size="sm"
-    onClick={async () => {
-      await updateJobStatus(job._id, "approved");
-
-      toast.success("Job approved");
-
-      loadJobs();
-    }}
-  >
-    Approve
-  </Button>
-
-  <Button
-    size="sm"
-    variant="destructive"
-    onClick={async () => {
-      await updateJobStatus(job._id, "rejected");
-
-      toast.success("Job rejected");
-
-      loadJobs();
-    }}
-  >
-    Reject
-  </Button>
-
-</div>
-
               </tr>
 
             ))}
@@ -2467,6 +2647,7 @@ export default function JobForm({
 
 	const submitHandler = (data) => {
 		onSubmit(data);
+		console.log("submitted data", data);
 
 		if (mode === "create") {
 			reset();
@@ -2493,11 +2674,9 @@ export default function JobForm({
 						<label htmlFor="title" className="mb-2 block font-medium">
 							Job Title
 						</label>
-
-						<Input
-							id="title"
-							placeholder="Frontend Developer"
-							{...register("title")}
+						<input
+							onChange={(e) => console.log("Native:", e.target.value)}
+							className="border p-2"
 						/>
 					</div>
 
@@ -5050,25 +5229,31 @@ export const getApproveJobById = async (id) => {
 </file>
 
 <file path="services/userService.js">
-import axios from "axios";
+import axiosInstance from "@/lib/axios";
 
-const API = process.env.NEXT_PUBLIC_API_URL;
 // saving user
 export const saveUser = async (userData) => {
-	const res = await axios.post(`${API}/api/users`, userData);
-
-	return res.data;
+	const { data } = await axiosInstance.post("/api/users", userData);
+	return data;
 };
-
-// const { data } = await axios.get("/api/auth/private");
-
-// console.log(data);
 
 // get user by email
 export const getUserByEmail = async (email) => {
-	const { data } = await axios.get(`${API}/api/users/${email}`);
-
+	const { data } = await axiosInstance.get(`/api/users/${email}`);
 	return data.user;
+};
+
+
+
+// 1. Get all users (Admin only)
+export const getAllUsers = async () => {
+	const { data } = await axiosInstance.get("/api/users");
+	return data.users;
+};
+// 2. Delete user (Admin only)
+export const deleteUser = async (userId) => {
+	const { data } = await axiosInstance.delete(`/api/users/${userId}`);
+	return data;
 };
 </file>
 

@@ -11,3 +11,16 @@ export const getUserByEmail = async (email) => {
 	const { data } = await axiosInstance.get(`/api/users/${email}`);
 	return data.user;
 };
+
+
+
+// 1. Get all users (Admin only)
+export const getAllUsers = async () => {
+	const { data } = await axiosInstance.get("/api/users");
+	return data.users;
+};
+// 2. Delete user (Admin only)
+export const deleteUser = async (userId) => {
+	const { data } = await axiosInstance.delete(`/api/users/${userId}`);
+	return data;
+};

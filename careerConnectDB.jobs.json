@@ -1,0 +1,232 @@
+[{
+  "_id": {
+    "$oid": "6a62e419d08f8f95c2826cb2"
+  },
+  "title": "Frontend dev",
+  "company": "Shamim Telecom",
+  "location": "Ichulia High School",
+  "salary": "60000",
+  "type": "Full Time",
+  "description": "nothing right now",
+  "requirements": "MERN",
+  "recruiterEmail": "kamrulislam018945651@gmail.com",
+  "recruiterName": "Jaki",
+  "status": "approved",
+  "createdAt": {
+    "$date": "2026-07-24T04:03:37.285Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6a62eea875a5bb3a5974c521"
+  },
+  "title": "Frontend Developer (React / Next.js)",
+  "company": "TechFlow Solutions",
+  "location": "Remote",
+  "salary": "$70,000 - $90,000 / year",
+  "type": "Full Time",
+  "description": "We are seeking a skilled Frontend Developer proficient in React and Next.js to build fast, scalable, and responsive web applications.",
+  "requirements": "2+ years of React/Next.js experience, proficiency in Tailwind CSS, REST APIs, and modern JavaScript (ES6+).",
+  "recruiterEmail": "kamrulislam018945651@gmail.com",
+  "recruiterName": "Sarah Jenkins",
+  "status": "approved",
+  "createdAt": "2026-07-24T08:30:00.000Z"
+},
+{
+  "_id": {
+    "$oid": "6a62eea875a5bb3a5974c526"
+  },
+  "title": "DevOps Engineer",
+  "company": "CloudScale Systems",
+  "location": "Remote",
+  "salary": "$110,000 - $140,000 / year",
+  "type": "Full Time",
+  "description": "Help us manage our AWS cloud infrastructure, automate CI/CD pipelines, and optimize containerized microservices.",
+  "requirements": "Experience with Docker, Kubernetes, AWS (EC2, S3), GitHub Actions, and Infrastructure as Code (Terraform).",
+  "recruiterEmail": "kamrulislam018945651@gmail.com",
+  "recruiterName": "David Chen",
+  "status": "rejected",
+  "createdAt": "2026-07-24T07:00:00.000Z"
+},
+{
+  "_id": {
+    "$oid": "6a62eea875a5bb3a5974c527"
+  },
+  "title": "Content Writer & SEO Specialist",
+  "company": "GrowthMonkey Agency",
+  "location": "Chicago, IL",
+  "salary": "$30 - $40 / hour",
+  "type": "Contract",
+  "description": "We are seeking a freelance content writer to create technical blog posts, SEO articles, and product documentation.",
+  "requirements": "Proven experience in tech copywriting, keyword research tools (Ahrefs/SEMrush), and CMS platforms (WordPress).",
+  "recruiterEmail": "kamrulislam018945651@gmail.com",
+  "recruiterName": "Amanda Lewis",
+  "status": "approved",
+  "createdAt": "2026-07-20T11:20:00.000Z"
+},
+{
+  "_id": {
+    "$oid": "6a62eea875a5bb3a5974c52a"
+  },
+  "title": "Product Manager",
+  "company": "NextGen Digital",
+  "location": "Seattle, WA (Hybrid)",
+  "salary": "$120,000 - $150,000 / year",
+  "type": "Full Time",
+  "description": "Lead product strategy, define feature roadmaps, and coordinate between design, engineering, and marketing teams.",
+  "requirements": "3+ years in Agile Product Management, experience with Jira/Confluence, and strong data analysis capability.",
+  "recruiterEmail": "kamrulislam018945651@gmail.com",
+  "recruiterName": "Clara Oswald",
+  "status": "approved",
+  "createdAt": "2026-07-18T09:30:00.000Z"
+},
+{
+  "_id": {
+    "$oid": "6a62eea875a5bb3a5974c524"
+  },
+  "title": "Full Stack MERN Developer",
+  "company": "DevSphere Inc",
+  "location": "Remote",
+  "salary": "$80,000 - $105,000 / year",
+  "type": "Full Time",
+  "description": "Looking for a full-stack engineer comfortable building web applications from scratch using MongoDB, Express, React, and Node.",
+  "requirements": "Solid experience across the full MERN stack, state management (Redux/Zustand), git workflows, and cloud deployment.",
+  "recruiterEmail": "kamrulislam018945651@gmail.com",
+  "recruiterName": "Michael Scott",
+  "status": "approved",
+  "createdAt": "2026-07-24T09:12:00.000Z"
+},
+{
+  "_id": {
+    "$oid": "6a62eea875a5bb3a5974c523"
+  },
+  "title": "UI/UX Designer",
+  "company": "PixelCraft Studios",
+  "location": "San Francisco, CA (Hybrid)",
+  "salary": "$60,000 - $80,000 / year",
+  "type": "Full Time",
+  "description": "Join our creative team to design modern user interfaces, wireframes, and interactive prototypes for SaaS platforms.",
+  "requirements": "Mastery of Figma, strong portfolio demonstrating user-centric design principles, knowledge of web accessibility.",
+  "recruiterEmail": "kamrulislam018945651@gmail.com",
+  "recruiterName": "Elena Vance",
+  "status": "approved",
+  "createdAt": "2026-07-22T10:00:00.000Z"
+},
+{
+  "_id": {
+    "$oid": "6a62eea875a5bb3a5974c522"
+  },
+  "title": "Backend Node.js Engineer",
+  "company": "DataPulse Corp",
+  "location": "New York, NY",
+  "salary": "$95,000 - $120,000 / year",
+  "type": "Full Time",
+  "description": "DataPulse is looking for a Backend Engineer to build robust RESTful APIs and manage MongoDB integration for high-traffic services.",
+  "requirements": "Strong experience with Node.js, Express.js, MongoDB, JWT authentication, and async architecture.",
+  "recruiterEmail": "kamrulislam018945651@gmail.com",
+  "recruiterName": "Alex Rivera",
+  "status": "approved",
+  "createdAt": "2026-07-23T14:15:00.000Z"
+},
+{
+  "_id": {
+    "$oid": "6a62eea875a5bb3a5974c525"
+  },
+  "title": "Junior Web Developer",
+  "company": "LaunchPad Media",
+  "location": "Austin, TX",
+  "salary": "$45,000 - $55,000 / year",
+  "type": "Part Time",
+  "description": "Great entry-level role for a enthusiastic developer looking to gain experience maintaining client websites and landing pages.",
+  "requirements": "HTML5, CSS3, JavaScript basics, familiarity with Git and responsive layout design.",
+  "recruiterEmail": "kamrulislam018945651@gmail.com",
+  "recruiterName": "Jaki",
+  "status": "approved",
+  "createdAt": "2026-07-21T16:45:00.000Z"
+},
+{
+  "_id": {
+    "$oid": "6a62eea875a5bb3a5974c528"
+  },
+  "title": "Mobile App Developer (React Native)",
+  "company": "AppNexus",
+  "location": "Remote",
+  "salary": "$85,000 - $110,000 / year",
+  "type": "Full Time",
+  "description": "Build cross-platform mobile applications for iOS and Android using React Native and integration with GraphQL endpoints.",
+  "requirements": "2+ years React Native experience, understanding of native build tools (Xcode, Android Studio), REST/GraphQL APIs.",
+  "recruiterEmail": "kamrulislam018945651@gmail.com",
+  "recruiterName": "Jaki",
+  "status": "approved",
+  "createdAt": "2026-07-19T13:05:00.000Z"
+},
+{
+  "_id": {
+    "$oid": "6a62eea875a5bb3a5974c529"
+  },
+  "title": "QA Automation Engineer",
+  "company": "SecureCode Labs",
+  "location": "Boston, MA",
+  "salary": "$75,000 - $95,000 / year",
+  "type": "Full Time",
+  "description": "Design and execute automated end-to-end testing suites for web and API products.",
+  "requirements": "Experience writing test scripts with Cypress or Playwright, Postman API testing, and bug tracking systems.",
+  "recruiterEmail": "kamrulislam018945651@gmail.com",
+  "recruiterName": "Robert Paulson",
+  "status": "approved",
+  "createdAt": "2026-07-24T10:00:00.000Z"
+},
+{
+  "_id": {
+    "$oid": "6a63a248f285807853ec8905"
+  },
+  "title": "Ichulia Kamrul",
+  "company": "Ichulia Kamrul",
+  "location": "Ichulia Kamrul",
+  "salary": "Ichulia Kamrul",
+  "type": "Internship",
+  "description": "Ichulia Kamrul",
+  "requirements": "Ichulia Kamrul",
+  "recruiterEmail": "kamrulislam018945651@gmail.com",
+  "recruiterName": "Jaki",
+  "status": "approved",
+  "createdAt": {
+    "$date": "2026-07-24T17:35:04.798Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6a6707c6114cdb832a52baac"
+  },
+  "title": "",
+  "company": "",
+  "location": "",
+  "salary": "",
+  "type": "",
+  "description": "",
+  "requirements": "",
+  "recruiterEmail": "kamrulislam018945651@gmail.com",
+  "recruiterName": "Jaki",
+  "status": "rejected",
+  "createdAt": {
+    "$date": "2026-07-27T07:24:54.301Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6a670aa4114cdb832a52baad"
+  },
+  "title": "KAmrul",
+  "company": "KAmrul",
+  "location": "KAmrul",
+  "salary": "KAmrul",
+  "type": "Full Time",
+  "description": "KAmrul",
+  "requirements": "KAmrul",
+  "recruiterEmail": "kamrulislam018945651@gmail.com",
+  "recruiterName": "Jaki",
+  "status": "approved",
+  "createdAt": {
+    "$date": "2026-07-27T07:37:08.309Z"
+  }
+}]

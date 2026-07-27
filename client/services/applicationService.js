@@ -1,9 +1,11 @@
-import axios from "axios";
+import axios from "@/lib/axios";
+
+
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 
 export const applyJob = async (application) => {
-  const { data } = await axios.post(
+  const { data } = await axiosInstance.post(
     `${API}/api/applications`,
     application
   );

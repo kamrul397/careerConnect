@@ -50,3 +50,12 @@ export const getApproveJobById = async (id) => {
 	const { data } = await axios.get(`/api/jobs/${id}`);
 	return data;
 };
+
+
+export const getJobCategories = async () => {
+	const { data } = await axios.get(`/api/jobs/categories`);
+
+
+
+	return data;
+};

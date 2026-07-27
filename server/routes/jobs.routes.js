@@ -4,6 +4,7 @@ import {
 	deleteJob,
 	getApprovedJobs,
 	getApproveJobById,
+	getJobCategories,
 	getPendingJobs,
 	getRecruiterJobs,
 	updateJob,
@@ -18,7 +19,8 @@ const router = express.Router();
 //		1. Static / Specific path routes FIRST
 router.post("/", verifyToken, verifyRecruiter, createJob);
 router.get("/recruiter", verifyToken, verifyRecruiter, getRecruiterJobs);
-router.get("/pending", verifyToken, verifyAdmin, getPendingJobs); // ✅ Moved above /:id
+router.get("/pending", verifyToken, verifyAdmin, getPendingJobs);
+router.get("/categories", getJobCategories); // ✅ Categories before dynamic /:id
 router.get("/", getApprovedJobs);
 
 // 2. Specific sub-path parameter routes NEXT
