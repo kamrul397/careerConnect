@@ -16,7 +16,14 @@ export default function NavLinks({ user, role }) {
 			)}
 
 			{/* Logged in users */}
-			{user && <Link href="/dashboard">Dashboard</Link>}
+			{user && (
+				<>
+					<Link href="/dashboard">Dashboard</Link>
+					{/* {role === "candidate" && (
+						<Link href="/dashboard/candidate/profile">Profile</Link>
+					)} */}
+				</>
+			)}
 		</div>
 	);
 }

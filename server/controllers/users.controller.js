@@ -57,10 +57,44 @@ export const getUserByEmail = async (req, res) => {
   }
 };
 
-// get all users for admin
+// Update user profile
+export const updateUser = async (req, res) => {
+  try {
+    const db = req.app.locals.db;
+    const usersCollection = db.collection("users");
+    const { email } = req.params;
+    const updateData = req.body;
 
+    // Prevent updating sensitive fields like _id, role, or email itself
+    delete updateData._id;
+    delete updateData.role;
+    delete updateData.email;
 
-// Get all users (Admin only)
+    const result = await usersCollection.updateOne(
+      { email },
+      { $set: updateData }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// get all users for admin// Get all users (Admin only)
 export const getAllUsers = async (req, res) => {
   try {
     const db = req.app.locals.db;

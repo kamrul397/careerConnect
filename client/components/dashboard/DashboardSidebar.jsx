@@ -72,6 +72,11 @@ export default function DashboardSidebar({ role }) {
         href: "/dashboard/candidate/my-applications",
         icon: FolderOpen,
       },
+      {
+        name: "Profile & Resume",
+        href: "/dashboard/candidate/profile",
+        icon: Users,
+      },
     ];
   }
 
@@ -92,7 +97,7 @@ export default function DashboardSidebar({ role }) {
               className={cn(
                 "flex items-center gap-3 rounded-lg px-4 py-3 transition hover:bg-muted",
                 pathname === item.href &&
-                  "bg-primary text-primary-foreground"
+                "bg-primary text-primary-foreground"
               )}
             >
               <Icon size={18} />

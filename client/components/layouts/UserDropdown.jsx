@@ -75,18 +75,18 @@ export default function UserDropdown() {
 				{/* Action Links */}
 				<DropdownMenuGroup>
 					<DropdownMenuItem asChild className="cursor-pointer">
-						<Link href="/profile" className="flex w-full items-center">
+						<Link href="/dashboard/candidate/profile" className="flex w-full items-center">
 							<User className="mr-2 h-4 w-4" />
 							<span>Profile</span>
 						</Link>
 					</DropdownMenuItem>
 
-					<DropdownMenuItem asChild className="cursor-pointer">
+					{/* <DropdownMenuItem asChild className="cursor-pointer">
 						<Link href="/settings" className="flex w-full items-center">
 							<Settings className="mr-2 h-4 w-4" />
 							<span>Settings</span>
 						</Link>
-					</DropdownMenuItem>
+					</DropdownMenuItem> */}
 				</DropdownMenuGroup>
 
 				<DropdownMenuSeparator />

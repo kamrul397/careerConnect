@@ -1,13 +1,36 @@
 "use client";
 
-// import { Button } from "@/components/ui/button";
-// import useAuth from "@/hooks/useAuth";
 import Link from "next/link";
 import { Button } from "../ui/button";
 import useAuth from "@/hooks/useAuth";
+import { useEffect, useState } from "react";
+import { getCandidateApplications } from "@/services/applicationService";
 
 export default function CandidateDashboard() {
 	const { dbUser } = useAuth();
+	const [applications, setApplications] = useState([]);
+	const [loading, setLoading] = useState(true);
+
+	useEffect(() => {
+		const fetchStats = async () => {
+			if (dbUser?.email) {
+				try {
+					const data = await getCandidateApplications(dbUser.email);
+					setApplications(data);
+				} catch (error) {
+					console.error("Error fetching applications:", error);
+				} finally {
+					setLoading(false);
+				}
+			}
+		};
+		fetchStats();
+	}, [dbUser]);
+
+	const appliedCount = applications.length;
+	const interviewCount = applications.filter(app => app.status === "interview").length;
+	// We'll keep saved jobs at 0 until that feature is built
+	const savedCount = 0;
 
 	return (
 		<div className="space-y-8">
@@ -22,20 +45,21 @@ export default function CandidateDashboard() {
 			<div className="grid md:grid-cols-3 gap-6">
 				<div className="border rounded-lg p-6">
 					<h3 className="text-sm text-muted-foreground">Applied Jobs</h3>
-
-					<p className="text-4xl font-bold mt-3">0</p>
+					<p className="text-4xl font-bold mt-3">
+						{loading ? "..." : appliedCount}
+					</p>
 				</div>
 
 				<div className="border rounded-lg p-6">
 					<h3 className="text-sm text-muted-foreground">Saved Jobs</h3>
-
-					<p className="text-4xl font-bold mt-3">0</p>
+					<p className="text-4xl font-bold mt-3">{savedCount}</p>
 				</div>
 
 				<div className="border rounded-lg p-6">
 					<h3 className="text-sm text-muted-foreground">Interviews</h3>
-
-					<p className="text-4xl font-bold mt-3">0</p>
+					<p className="text-4xl font-bold mt-3">
+						{loading ? "..." : interviewCount}
+					</p>
 				</div>
 			</div>
 

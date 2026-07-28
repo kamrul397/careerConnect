@@ -28,6 +28,10 @@ export default function JobCard({ job }) {
         <p className="text-sm">
           {job.type}
         </p>
+
+        <p className="text-sm">
+          🏷️ {job.category}
+        </p>
       </div>
 
       <Button

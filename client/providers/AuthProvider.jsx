@@ -42,12 +42,16 @@ export default function AuthProvider({ children }) {
 
 			if (currentUser) {
 				console.log(currentUser);
-				// Create HTTP-only cookie
-				await getJwt({
-					email: currentUser.email,
-					uid: currentUser.uid,
-					// role: currentUser.role
-				});
+				try {
+					// Create HTTP-only cookie
+					await getJwt({
+						email: currentUser.email,
+						uid: currentUser.uid,
+						// role: currentUser.role
+					});
+				} catch (error) {
+					console.error("Failed to set JWT:", error);
+				}
 
 				// const result = await testJwt();
 				// console.log(result);

@@ -17,10 +17,10 @@ export async function connectDB() {
   try {
     await client.connect();
 
-    console.log("✅ MongoDB Connected");
+  
 
     return client.db("careerConnectDB");
   } catch (error) {
-    console.error(error);
+
   }
 }

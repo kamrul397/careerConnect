@@ -4,12 +4,14 @@ import JobsGrid from "@/components/jobs/JobsGrid";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
 import { getApprovedJobs } from "@/services/jobService";
 import useCategories from "@/hooks/useCategories";
+import { Search } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function JobsPage() {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
   const { categories } = useCategories();
 
   const searchParams = useSearchParams();
@@ -43,10 +45,14 @@ export default function JobsPage() {
     }
   };
 
-  const filteredJobs =
-    selectedCategory === "All"
-      ? jobs
-      : jobs.filter((job) => job.category === selectedCategory);
+  const filteredJobs = jobs.filter((job) => {
+    const matchesCategory = selectedCategory === "All" || job.category === selectedCategory;
+    const matchesSearch =
+      job.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      job.company?.toLowerCase().includes(searchTerm.toLowerCase());
+
+    return matchesCategory && matchesSearch;
+  });
 
   if (loading) {
     return <LoadingSpinner />;
@@ -63,6 +69,20 @@ export default function JobsPage() {
         <p className="mt-2 text-muted-foreground">
           Browse all approved opportunities from verified recruiters.
         </p>
+      </div>
+
+      {/* Search Input */}
+      <div className="relative mb-6 max-w-md">
+        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+          <Search className="h-5 w-5 text-muted-foreground" />
+        </div>
+        <input
+          type="text"
+          placeholder="Search by job title or company..."
+          className="block w-full rounded-md border border-input bg-background py-2 pl-10 pr-3 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
       </div>
 
       {/* Category Filters */}

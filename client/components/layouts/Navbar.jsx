@@ -6,6 +6,8 @@ import { Button } from "../ui/button";
 import NavLinks from "./NavLinks";
 import UserDropdown from "./UserDropdown";
 import useAuth from "@/hooks/useAuth";
+import { useState } from "react";
+import { Menu, X } from "lucide-react";
 
 // import Link from "next/link";
 
@@ -19,6 +21,7 @@ import useAuth from "@/hooks/useAuth";
 
 export default function Navbar() {
 	const { user, dbUser, loading } = useAuth();
+	const [mobileOpen, setMobileOpen] = useState(false);
 
 	return (
 		<header className="sticky top-0 z-50 border-b bg-white">

@@ -12,8 +12,11 @@ export const getUserByEmail = async (email) => {
 	return data.user;
 };
 
-
-
+// update user profile
+export const updateUserProfile = async (email, updateData) => {
+	const { data } = await axiosInstance.patch(`/api/users/${email}`, updateData);
+	return data;
+};
 // 1. Get all users (Admin only)
 export const getAllUsers = async () => {
 	const { data } = await axiosInstance.get("/api/users");

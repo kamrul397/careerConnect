@@ -1,8 +1,30 @@
-import jobs from "@/app/data/jobs";
-import Link from "next/link";
+"use client";
 
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import JobCard from "@/components/jobs/JobCard";
+import { getApprovedJobs } from "@/services/jobService";
+import LoadingSpinner from "@/components/shared/LoadingSpinner";
 
 export default function FeaturedJobs() {
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const jobsData = await getApprovedJobs();
+        // Limit to 6 jobs for the featured section
+        setJobs(jobsData.slice(0, 6));
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, []);
+
   return (
     <section className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-5">
@@ -18,37 +40,17 @@ export default function FeaturedJobs() {
         </div>
 
         {/* Cards */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {jobs.map((job) => (
-            <div
-              key={job.id}
-              className="border rounded-xl p-6 shadow-sm hover:shadow-lg transition"
-            >
-              <h3 className="text-xl font-semibold">{job.title}</h3>
-
-              <p className="text-blue-600 mt-2">{job.company}</p>
-
-              <p className="text-gray-600 mt-2">
-                📍 {job.location}
-              </p>
-
-              <p className="text-gray-600">
-                💰 {job.salary}
-              </p>
-
-              <span className="inline-block mt-4 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">
-                {job.type}
-              </span>
-
-              <Link
-                href={`/jobs/${job.id}`}
-                className="block mt-6 bg-blue-600 text-white text-center py-2 rounded-lg hover:bg-blue-700"
-              >
-                View Details
-              </Link>
-            </div>
-          ))}
-        </div>
+        {loading ? (
+          <div className="flex justify-center items-center py-10">
+            <LoadingSpinner />
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {jobs.map((job) => (
+              <JobCard key={job._id} job={job} />
+            ))}
+          </div>
+        )}
 
         {/* Button */}
         <div className="text-center mt-12">
