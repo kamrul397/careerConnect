@@ -1,11 +1,30 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import { saveJob } from "@/services/savedJobsService";
+import { toast } from "sonner";
 
-export default function JobCard({ job }) {
-  console.log("job", job);
+export default function JobCard({ job, initialSaved = false, initialApplied = false }) {
+  const [isSaved, setIsSaved] = useState(initialSaved);
+  const [isApplied, setIsApplied] = useState(initialApplied);
+
+  const handleSave = async (jobId) => {
+    // ✅ Optimistic update — change button instantly
+    setIsSaved(true);
+
+    try {
+      await saveJob(jobId);
+      toast.success("Job saved!");
+    } catch (error) {
+      // ❌ Rollback if API fails
+      setIsSaved(false);
+      toast.error(error.response?.data?.message || "Failed to save.");
+    }
+  };
+
   return (
     <div className="rounded-xl border bg-white p-6 shadow-sm transition hover:shadow-md">
       <div className="space-y-2">
@@ -34,14 +53,32 @@ export default function JobCard({ job }) {
         </p>
       </div>
 
-      <Button
-        asChild
-        className="mt-6 w-full"
-      >
-        <Link href={`/jobs/${job._id}`}>
-          View Details
-        </Link>
-      </Button>
+      <div className="mt-6 flex gap-2 w-full">
+        {/* Save button — hidden if already applied */}
+        {!isApplied && (
+          <Button
+            onClick={() => handleSave(job._id)}
+            disabled={isSaved}
+            variant={isSaved ? "default" : "outline"}
+            className="flex-1"
+          >
+            {isSaved ? "Saved ✓" : "Save"}
+          </Button>
+        )}
+
+        {/* Apply / Applied button */}
+        {isApplied ? (
+          <Button disabled className="flex-1">
+            Applied ✓
+          </Button>
+        ) : (
+          <Button asChild className="flex-1">
+            <Link href={`/jobs/${job._id}`}>
+              Apply Now
+            </Link>
+          </Button>
+        )}
+      </div>
     </div>
   );
 }

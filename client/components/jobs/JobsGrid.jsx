@@ -4,7 +4,7 @@ import JobCard from "./JobCard";
 
 // import JobCard from "./JobCard";
 
-export default function JobsGrid({ jobs }) {
+export default function JobsGrid({ jobs, savedJobIds = new Set(), appliedJobIds = new Set() }) {
   if (!jobs.length) {
     return (
       <div className="rounded-lg border p-10 text-center">
@@ -25,6 +25,8 @@ export default function JobsGrid({ jobs }) {
         <JobCard
           key={job._id}
           job={job}
+          initialSaved={savedJobIds.has(job._id)}
+          initialApplied={appliedJobIds.has(job._id)}
         />
       ))}
     </div>

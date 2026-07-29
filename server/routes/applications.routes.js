@@ -5,6 +5,7 @@ import {
   getCandidateApplications,
   hasApplied,
   updateApplicationStatus,
+  withdrawApplication,
 } from "../controllers/applications.controller.js";
 import verifyToken from "../middleware/verifyToken.js";
 import verifyRecruiter from "../middleware/verifyRecruiter.js";
@@ -17,6 +18,7 @@ router.get("/check", verifyToken, hasApplied);
 router.get("/candidate", verifyToken, getCandidateApplications); // ✅ Moved up above parameterized routes
 
 // 2. Dynamic/Parameterized routes LAST
+router.patch("/:id/withdraw", verifyToken, withdrawApplication);
 router.get("/:jobId/applicants", verifyToken, verifyRecruiter, getApplicantsByJob);
 router.patch("/:id/status", verifyToken, verifyRecruiter, updateApplicationStatus);
 

@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react";
 
 import useAuth from "@/hooks/useAuth";
-import { getCandidateApplications } from "@/services/applicationService";
+import { getCandidateApplications, withdrawApplication } from "@/services/applicationService";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 export default function CandidateApplicationsTable() {
   const { dbUser } = useAuth();
@@ -24,6 +26,22 @@ export default function CandidateApplicationsTable() {
     setApplications(data);
   };
 
+  const handleWithdraw = async (id) => {
+    const previousApplications = [...applications];
+    // Optimistic UI update
+    setApplications((prev) =>
+      prev.map((app) => (app._id === id ? { ...app, status: "withdrawn" } : app))
+    );
+
+    try {
+      await withdrawApplication(id);
+      toast.success("Application withdrawn.");
+    } catch (error) {
+      setApplications(previousApplications);
+      toast.error(error.response?.data?.message || "Failed to withdraw application.");
+    }
+  };
+
   const badgeColor = {
     pending:
       "bg-yellow-100 text-yellow-700",
@@ -39,6 +57,9 @@ export default function CandidateApplicationsTable() {
 
     rejected:
       "bg-red-100 text-red-700",
+
+    withdrawn:
+      "bg-gray-100 text-gray-700",
   };
 
   return (
@@ -76,6 +97,10 @@ export default function CandidateApplicationsTable() {
               Status
             </th>
 
+            <th className="p-4 text-left">
+              Actions
+            </th>
+
           </tr>
 
         </thead>
@@ -104,11 +129,23 @@ export default function CandidateApplicationsTable() {
               <td className="p-4">
 
                 <span
-                  className={`rounded-full px-3 py-1 text-sm font-medium ${badgeColor[application.status]}`}
+                  className={`rounded-full px-3 py-1 text-sm font-medium ${badgeColor[application.status] || "bg-gray-100 text-gray-700"}`}
                 >
                   {application.status}
                 </span>
 
+              </td>
+
+              <td className="p-4">
+                {application.status === "pending" && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleWithdraw(application._id)}
+                  >
+                    Withdraw
+                  </Button>
+                )}
               </td>
 
             </tr>

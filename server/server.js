@@ -7,6 +7,7 @@ import jobsRoutes from "./routes/jobs.routes.js";
 import usersRoutes from "./routes/users.routes.js";
 import applicationsRoutes from "./routes/applications.routes.js";
 import authRoutes from "./routes/auth.routes.js";
+import savedJobsRoutes from "./routes/savedJobs.routes.js";
 
 dotenv.config();
 
@@ -35,6 +36,8 @@ app.use("/api/jobs", jobsRoutes);
 app.use("/api/applications", applicationsRoutes);
 
 app.use("/api/auth", authRoutes);
+
+app.use("/api/saved-jobs", savedJobsRoutes);
 
 // // Connect Database
 // const db = await connectDB();

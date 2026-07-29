@@ -5,20 +5,26 @@ import { Button } from "../ui/button";
 import useAuth from "@/hooks/useAuth";
 import { useEffect, useState } from "react";
 import { getCandidateApplications } from "@/services/applicationService";
+import { getSavedJobs } from "@/services/savedJobsService";
 
 export default function CandidateDashboard() {
 	const { dbUser } = useAuth();
 	const [applications, setApplications] = useState([]);
+	const [savedCount, setSavedCount] = useState(0);
 	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
 		const fetchStats = async () => {
 			if (dbUser?.email) {
 				try {
-					const data = await getCandidateApplications(dbUser.email);
-					setApplications(data);
+					const [appData, savedData] = await Promise.all([
+						getCandidateApplications(dbUser.email),
+						getSavedJobs(),
+					]);
+					setApplications(appData);
+					setSavedCount(savedData.length);
 				} catch (error) {
-					console.error("Error fetching applications:", error);
+					console.error("Error fetching stats:", error);
 				} finally {
 					setLoading(false);
 				}
@@ -29,8 +35,6 @@ export default function CandidateDashboard() {
 
 	const appliedCount = applications.length;
 	const interviewCount = applications.filter(app => app.status === "interview").length;
-	// We'll keep saved jobs at 0 until that feature is built
-	const savedCount = 0;
 
 	return (
 		<div className="space-y-8">
@@ -52,7 +56,7 @@ export default function CandidateDashboard() {
 
 				<div className="border rounded-lg p-6">
 					<h3 className="text-sm text-muted-foreground">Saved Jobs</h3>
-					<p className="text-4xl font-bold mt-3">{savedCount}</p>
+					<p className="text-4xl font-bold mt-3">{loading ? "..." : savedCount}</p>
 				</div>
 
 				<div className="border rounded-lg p-6">

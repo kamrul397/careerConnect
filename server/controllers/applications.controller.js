@@ -174,3 +174,53 @@ export const getCandidateApplications = async (req, res) => {
     });
   }
 };
+
+// Candidate withdraws their own pending application
+export const withdrawApplication = async (req, res) => {
+  try {
+    const db = req.app.locals.db;
+    const { id } = req.params;
+    const candidateEmail = req.decoded.email;
+
+    const application = await db.collection("applications").findOne({
+      _id: new ObjectId(id),
+      candidateEmail: candidateEmail
+    });
+
+    if (!application) {
+      return res.status(404).send({
+        success: false,
+        message: "Application not found.",
+      });
+    }
+
+    if (application.status !== "pending") {
+      return res.status(400).send({
+        success: false,
+        message: "Only pending applications can be withdrawn.",
+      });
+    }
+
+    await db.collection("applications").updateOne(
+      { _id: new ObjectId(id) },
+      {
+        $set: {
+          status: "withdrawn",
+          updatedAt: new Date(),
+        },
+      }
+    );
+
+    res.send({
+      success: true,
+      message: "Application withdrawn successfully.",
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({
+      success: false,
+      message: "Failed to withdraw application.",
+    });
+  }
+};

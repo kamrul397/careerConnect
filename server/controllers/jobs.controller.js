@@ -297,7 +297,7 @@ export const getJobCategories = async (req, res) => {
       },
     ]).toArray();
 
-    console.log("categories =>", categories);
+    // console.log("categories =>", categories);
     res.send(categories);
 
   } catch (error) {

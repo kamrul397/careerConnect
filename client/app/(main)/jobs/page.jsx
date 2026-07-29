@@ -3,13 +3,19 @@
 import JobsGrid from "@/components/jobs/JobsGrid";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
 import { getApprovedJobs } from "@/services/jobService";
+import { getSavedJobs } from "@/services/savedJobsService";
+import { getCandidateApplications } from "@/services/applicationService";
 import useCategories from "@/hooks/useCategories";
+import useAuth from "@/hooks/useAuth";
 import { Search } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function JobsPage() {
+  const { dbUser } = useAuth();
   const [jobs, setJobs] = useState([]);
+  const [savedJobIds, setSavedJobIds] = useState(new Set());
+  const [appliedJobIds, setAppliedJobIds] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const { categories } = useCategories();
@@ -32,12 +38,23 @@ export default function JobsPage() {
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [dbUser]);
 
   const loadData = async () => {
     try {
-      const jobsData = await getApprovedJobs();
+      const isCandidate = dbUser?.role === "candidate";
+
+      const [jobsData, savedData, applicationsData] = await Promise.all([
+        getApprovedJobs(),
+        isCandidate ? getSavedJobs() : Promise.resolve([]),
+        isCandidate ? getCandidateApplications(dbUser.email) : Promise.resolve([]),
+      ]);
+
       setJobs(jobsData);
+
+      // Build Sets for O(1) lookup in each JobCard
+      setSavedJobIds(new Set(savedData.map((item) => item.jobDetails?._id)));
+      setAppliedJobIds(new Set(applicationsData.map((app) => app.jobId)));
     } catch (error) {
       console.error(error);
     } finally {
@@ -116,7 +133,7 @@ export default function JobsPage() {
         {filteredJobs.length} jobs found
       </p>
 
-      <JobsGrid jobs={filteredJobs} />
+      <JobsGrid jobs={filteredJobs} savedJobIds={savedJobIds} appliedJobIds={appliedJobIds} />
     </section>
   );
 }

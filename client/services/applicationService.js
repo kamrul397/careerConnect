@@ -5,7 +5,7 @@ import axios from "@/lib/axios";
 const API = process.env.NEXT_PUBLIC_API_URL;
 
 export const applyJob = async (application) => {
-  const { data } = await axiosInstance.post(
+  const { data } = await axios.post(
     `${API}/api/applications`,
     application
   );
@@ -59,6 +59,15 @@ export const getCandidateApplications = async (email) => {
         email,
       },
     }
+  );
+
+  return data;
+};
+
+// withdraw application (candidate only)
+export const withdrawApplication = async (id) => {
+  const { data } = await axios.patch(
+    `${API}/api/applications/${id}/withdraw`
   );
 
   return data;

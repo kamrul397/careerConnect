@@ -10,6 +10,7 @@ import {
   FileClock,
   PlusCircle,
   FolderOpen,
+  Bookmark,
   ArrowLeft,
 } from "lucide-react";
 
@@ -71,6 +72,11 @@ export default function DashboardSidebar({ role }) {
         name: "Applications",
         href: "/dashboard/candidate/my-applications",
         icon: FolderOpen,
+      },
+      {
+        name: "Saved Jobs",
+        href: "/dashboard/candidate/saved-jobs",
+        icon: Bookmark,
       },
       {
         name: "Profile & Resume",

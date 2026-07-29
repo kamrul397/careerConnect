@@ -11,6 +11,7 @@ import useAuth from "@/hooks/useAuth";
 
 import { getApproveJobById } from "@/services/jobService";
 import { applyJob, checkApplied } from "@/services/applicationService";
+import { saveJob, getSavedJobs } from "@/services/savedJobsService";
 
 import { toast } from "sonner";
 
@@ -23,6 +24,7 @@ export default function JobDetailsPage() {
 	const [job, setJob] = useState(null);
 	const [alreadyApplied, setAlreadyApplied] = useState(false);
 	const [applying, setApplying] = useState(false);
+	const [isSaved, setIsSaved] = useState(false);
 
 	useEffect(() => {
 		if (id) {
@@ -33,6 +35,7 @@ export default function JobDetailsPage() {
 	useEffect(() => {
 		if (job && dbUser?.email) {
 			checkApplication();
+			checkSaved();
 		}
 	}, [job, dbUser]);
 
@@ -51,8 +54,21 @@ export default function JobDetailsPage() {
 
 		try {
 			const applied = await checkApplied(job._id, dbUser.email);
-
 			setAlreadyApplied(applied);
+		} catch (error) {
+			console.error(error);
+		}
+	};
+
+	const checkSaved = async () => {
+		if (!job || dbUser?.role !== "candidate") return;
+
+		try {
+			const savedJobs = await getSavedJobs();
+			const alreadySaved = savedJobs.some(
+				(item) => item.jobDetails?._id === job._id
+			);
+			setIsSaved(alreadySaved);
 		} catch (error) {
 			console.error(error);
 		}
@@ -93,6 +109,25 @@ export default function JobDetailsPage() {
 			toast.error(error.response?.data?.message || "Application failed.");
 		} finally {
 			setApplying(false);
+		}
+	};
+
+	const handleSave = async () => {
+		if (!dbUser?.email) {
+			toast.error("Please login first.");
+			return;
+		}
+
+		// ✅ Optimistic update — change button instantly
+		setIsSaved(true);
+
+		try {
+			await saveJob(job._id);
+			toast.success("Job saved!");
+		} catch (error) {
+			// ❌ Rollback if API fails
+			setIsSaved(false);
+			toast.error(error.response?.data?.message || "Failed to save job.");
 		}
 	};
 
@@ -169,7 +204,17 @@ export default function JobDetailsPage() {
 
 			{/* Apply Section */}
 
-			<div className="mt-8 flex justify-end">
+			<div className="mt-8 flex justify-end gap-4">
+				{dbUser?.role === "candidate" && !alreadyApplied && (
+					<Button
+						variant={isSaved ? "default" : "outline"}
+						size="lg"
+						disabled={isSaved}
+						onClick={handleSave}
+					>
+						{isSaved ? "Saved ✓" : "Save Job"}
+					</Button>
+				)}
 				{dbUser?.role === "candidate" ? (
 					<Button
 						size="lg"
