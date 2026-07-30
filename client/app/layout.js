@@ -1,7 +1,9 @@
+import { Outfit } from "next/font/google";
 import "./globals.css";
 import AuthProvider from "@/providers/AuthProvider";
 import { Toaster } from "@/components/ui/sonner";
 
+const outfit = Outfit({ subsets: ["latin"] });
 
 export const metadata = {
   title: "CareerConnect",
@@ -10,8 +12,8 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" className={outfit.className}>
+      <body className="antialiased text-gray-800">
         <AuthProvider>
           {children}
           <Toaster richColors position="top-right" duration={500} />

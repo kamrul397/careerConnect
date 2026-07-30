@@ -17,10 +17,11 @@ export default function JobsPage() {
   const [savedJobIds, setSavedJobIds] = useState(new Set());
   const [appliedJobIds, setAppliedJobIds] = useState(new Set());
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const { categories } = useCategories();
-
   const searchParams = useSearchParams();
+  const [searchTerm, setSearchTerm] = useState(
+    searchParams.get("search") || ""
+  );
+  const { categories } = useCategories();
 
   const [selectedCategory, setSelectedCategory] = useState(
     searchParams.get("category") || "All"
@@ -33,6 +34,11 @@ export default function JobsPage() {
       setSelectedCategory(category);
     } else {
       setSelectedCategory("All");
+    }
+    
+    const search = searchParams.get("search");
+    if (search) {
+      setSearchTerm(search);
     }
   }, [searchParams]);
 

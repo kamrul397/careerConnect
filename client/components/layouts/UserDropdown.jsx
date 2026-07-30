@@ -1,8 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import { LogOut, Settings, User } from "lucide-react";
+import { HiUserCircle } from "react-icons/hi";
 
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Button } from "../ui/button";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -15,49 +16,43 @@ import {
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import useAuth from "@/hooks/useAuth";
+import Image from "next/image";
 
 export default function UserDropdown() {
 	const router = useRouter();
-	const { user, logoutUser } = useAuth();
+	const { user, dbUser, logoutUser } = useAuth();
+
 	const handleLogout = async () => {
 		try {
 			await logoutUser();
-
 			toast.success("Logged out successfully.");
-
 			router.replace("/");
 		} catch (error) {
 			console.error(error);
-
 			toast.error("Logout failed.");
 		}
 	};
-	// Get first letter of user's display name or email for fallback avatar
-	const avatarFallbackLetter =
-		user?.displayName?.charAt(0).toUpperCase() ||
-		user?.email?.charAt(0).toUpperCase() ||
-		"U";
 
 	return (
-		<DropdownMenu>
-			{/* TRIGGER BUTTON */}
+		<DropdownMenu modal={false}>
 			<DropdownMenuTrigger asChild>
-				<Button
-					variant="ghost"
-					className="relative h-10 w-10 rounded-full p-0 focus-visible:ring-2"
-				>
-					<Avatar className="h-10 w-10">
-						<AvatarImage
-							src={user?.photoURL || ""}
-							alt={user?.displayName || "User Avatar"}
+				<button className="relative flex items-center justify-center h-9 w-9 rounded-full overflow-hidden transition-all duration-300 transform hover:scale-105 hover:ring-2 hover:ring-teal-500/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 shadow-sm hover:shadow-md cursor-pointer shrink-0">
+					{dbUser?.photo || user?.photoURL ? (
+						<Image
+							src={dbUser?.photo || user?.photoURL}
+							alt="User Avatar"
+							fill
+							sizes="36px"
+							className="rounded-full object-cover transition-transform duration-300 hover:scale-110"
 						/>
-						<AvatarFallback>{avatarFallbackLetter}</AvatarFallback>
-					</Avatar>
-				</Button>
+					) : (
+						<HiUserCircle className="w-full h-full text-slate-600 hover:text-teal-700 transition-colors duration-200" />
+					)}
+				</button>
 			</DropdownMenuTrigger>
 
 			{/* DROPDOWN MENU CONTENT */}
-			<DropdownMenuContent align="end" className="w-60 p-2">
+			<DropdownMenuContent align="end" className="w-60 p-2 mt-2 bg-white/95 backdrop-blur-xl border border-gray-100 shadow-xl rounded-xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 duration-200">
 				{/* User Info Section */}
 				<DropdownMenuLabel className="font-normal">
 					<div className="flex flex-col space-y-1">
@@ -74,19 +69,12 @@ export default function UserDropdown() {
 
 				{/* Action Links */}
 				<DropdownMenuGroup>
-					<DropdownMenuItem asChild className="cursor-pointer">
+					<DropdownMenuItem asChild className="cursor-pointer focus:bg-gray-50 hover:bg-gray-50 rounded-lg transition-colors mb-1">
 						<Link href="/dashboard/candidate/profile" className="flex w-full items-center">
 							<User className="mr-2 h-4 w-4" />
 							<span>Profile</span>
 						</Link>
 					</DropdownMenuItem>
-
-					{/* <DropdownMenuItem asChild className="cursor-pointer">
-						<Link href="/settings" className="flex w-full items-center">
-							<Settings className="mr-2 h-4 w-4" />
-							<span>Settings</span>
-						</Link>
-					</DropdownMenuItem> */}
 				</DropdownMenuGroup>
 
 				<DropdownMenuSeparator />
@@ -94,7 +82,7 @@ export default function UserDropdown() {
 				{/* Logout Option */}
 				<DropdownMenuItem
 					onClick={handleLogout}
-					className="cursor-pointer text-red-600 focus:bg-red-50 focus:text-red-600 dark:focus:bg-red-950"
+					className="cursor-pointer text-red-600 focus:bg-red-50/50 focus:text-red-700 hover:bg-red-50/50 rounded-lg transition-colors mt-1"
 				>
 					<LogOut className="mr-2 h-4 w-4" />
 					<span>Log out</span>

@@ -6,11 +6,7 @@ export const registerSchema = z.object({
 		.min(3, "Name must be at least 3 characters")
 		.max(50, "Name is too long"),
 
-	photo: z
-		.string()
-		.url("Please enter a valid image URL")
-		.optional()
-		.or(z.literal("")),
+	photo: z.any().optional(),
 
 	email: z.string().email("Please enter a valid email address"),
 

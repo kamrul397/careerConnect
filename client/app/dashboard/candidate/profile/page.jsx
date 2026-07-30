@@ -25,6 +25,8 @@ export default function ProfilePage() {
   const [showUploadForm, setShowUploadForm] = useState(false);
   const fileInputRef = useRef(null);
 
+  console.log("dbuser", dbUser)
+
   const handleSaveProfile = async (e) => {
     e.preventDefault();
     if (!dbUser?.email) return;
