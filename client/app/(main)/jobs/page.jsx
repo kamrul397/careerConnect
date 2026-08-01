@@ -9,9 +9,9 @@ import useCategories from "@/hooks/useCategories";
 import useAuth from "@/hooks/useAuth";
 import { Search } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 
-export default function JobsPage() {
+function JobsContent() {
   const { dbUser } = useAuth();
   const [jobs, setJobs] = useState([]);
   const [savedJobIds, setSavedJobIds] = useState(new Set());
@@ -141,5 +141,13 @@ export default function JobsPage() {
 
       <JobsGrid jobs={filteredJobs} savedJobIds={savedJobIds} appliedJobIds={appliedJobIds} />
     </section>
+  );
+}
+
+export default function JobsPage() {
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      <JobsContent />
+    </Suspense>
   );
 }

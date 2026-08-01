@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import React, { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,11 +14,17 @@ import { saveJob } from "@/services/savedJobsService";
 import GoogleLoginButton from "@/components/auth/GoogleLoginButton";
 import Logo from "@/components/shared/Logo";
 
-export default function LoginPage() {
-	const { loginUser } = useAuth();
+function LoginForm() {
+	const { user, loginUser } = useAuth();
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const jobIdToSave = searchParams.get("saveJob");
+
+	React.useEffect(() => {
+		if (user) {
+			router.replace("/dashboard");
+		}
+	}, [user, router]);
 
 	const {
 		register,
@@ -101,5 +108,13 @@ export default function LoginPage() {
 				</p>
 			</div>
 		</div>
+	);
+}
+
+export default function LoginPage() {
+	return (
+		<Suspense fallback={<div className="text-center py-20 text-[#124d46] font-semibold">Loading login...</div>}>
+			<LoginForm />
+		</Suspense>
 	);
 }

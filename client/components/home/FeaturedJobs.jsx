@@ -2,63 +2,80 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import JobCard from "@/components/jobs/JobCard";
+import JobsGrid from "@/components/jobs/JobsGrid";
 import { getApprovedJobs } from "@/services/jobService";
+import { getSavedJobs } from "@/services/savedJobsService";
+import { getCandidateApplications } from "@/services/applicationService";
+import useAuth from "@/hooks/useAuth";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
+import { ArrowRight } from "lucide-react";
 
 export default function FeaturedJobs() {
+  const { dbUser } = useAuth();
   const [jobs, setJobs] = useState([]);
+  const [savedJobIds, setSavedJobIds] = useState(new Set());
+  const [appliedJobIds, setAppliedJobIds] = useState(new Set());
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        const jobsData = await getApprovedJobs();
+        const isCandidate = dbUser?.role === "candidate";
+
+        const [jobsData, savedData, applicationsData] = await Promise.all([
+          getApprovedJobs(),
+          isCandidate ? getSavedJobs() : Promise.resolve([]),
+          isCandidate ? getCandidateApplications(dbUser.email) : Promise.resolve([]),
+        ]);
+
         // Limit to 6 jobs for the featured section
         setJobs(jobsData.slice(0, 6));
+        setSavedJobIds(new Set(savedData.map((item) => item.jobDetails?._id)));
+        setAppliedJobIds(new Set(applicationsData.map((app) => app.jobId)));
       } catch (error) {
         console.error(error);
       } finally {
         setLoading(false);
       }
     };
+
     loadData();
-  }, []);
+  }, [dbUser]);
 
   return (
-    <section className="py-20 bg-white">
-      <div className="max-w-7xl mx-auto px-5">
-        {/* Heading */}
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-slate-800">
-            Featured Jobs
+    <section className="relative py-8 md:py-10 bg-transparent overflow-hidden">
+      <div className="relative max-w-7xl mx-auto px-5">
+        {/* Centered Heading Section */}
+        <div className="text-center max-w-2xl mx-auto mb-12 md:mb-16 space-y-3">
+          <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
+            Featured <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#124d46] via-teal-700 to-emerald-600">Jobs</span>
           </h2>
-
-          <p className="text-gray-600 mt-3">
-            Explore some of the latest opportunities from top companies.
+          <p className="text-base md:text-lg text-slate-600 leading-relaxed font-medium mx-auto max-w-xl">
+            Explore hand-picked, premium opportunities from top companies actively seeking top talent.
           </p>
         </div>
 
         {/* Cards */}
         {loading ? (
-          <div className="flex justify-center items-center py-10">
+          <div className="flex justify-center items-center py-20">
             <LoadingSpinner />
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {jobs.map((job) => (
-              <JobCard key={job._id} job={job} />
-            ))}
-          </div>
+          <JobsGrid
+            jobs={jobs}
+            savedJobIds={savedJobIds}
+            appliedJobIds={appliedJobIds}
+          />
         )}
 
-        {/* Button */}
-        <div className="text-center mt-12">
+        {/* Centered Button Below Featured Jobs Grid */}
+        <div className="mt-12 text-center">
           <Link
             href="/jobs"
-            className="inline-block border border-blue-600 text-blue-600 px-6 py-3 rounded-lg hover:bg-blue-600 hover:text-white transition"
+            className="inline-flex items-center justify-center gap-2 bg-[#124d46] hover:bg-[#080e0d] text-white px-8 py-3.5 rounded-xl font-bold transition-all shadow-md shadow-[#124d46]/20 active:scale-95 text-base group"
           >
-            View All Jobs
+            <span>Explore all jobs</span>
+            <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
       </div>

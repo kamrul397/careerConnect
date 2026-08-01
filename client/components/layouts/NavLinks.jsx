@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { HiHome, HiBriefcase, HiOfficeBuilding } from "react-icons/hi";
+import { HiHome, HiBriefcase, HiOfficeBuilding, HiInformationCircle } from "react-icons/hi";
 
 export default function NavLinks({ user, role }) {
 	const pathname = usePathname();
@@ -26,6 +26,8 @@ export default function NavLinks({ user, role }) {
 					<Link href="/companies" className={getLinkClasses("/companies")}><HiOfficeBuilding className="text-xl" /> Companies</Link>
 				</>
 			)}
+
+			<Link href="/about" className={getLinkClasses("/about")}><HiInformationCircle className="text-xl" /> About</Link>
 
 			{/* Logged in users */}
 			{user && (

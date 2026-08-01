@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -16,7 +16,7 @@ import { registerSchema } from "@/validations/auth.validation";
 import { getFirebaseErrorMessage } from "@/utils/firebaseErrors";
 import GoogleLoginButton from "@/components/auth/GoogleLoginButton";
 
-export default function RegisterPage() {
+function RegisterForm() {
 	const [showPassword, setShowPassword] = useState(false);
 	const [selectedFileName, setSelectedFileName] = useState("");
 
@@ -37,7 +37,13 @@ export default function RegisterPage() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const jobIdToSave = searchParams.get("saveJob");
-	const { refreshDbUser } = useAuth();
+	const { user, refreshDbUser } = useAuth();
+
+	React.useEffect(() => {
+		if (user) {
+			router.replace("/dashboard");
+		}
+	}, [user, router]);
 
 	const handleFileChange = (e) => {
 		onPhotoChange(e);
@@ -126,11 +132,10 @@ export default function RegisterPage() {
 	};
 
 	return (
-
 		<div className="bg-white lg:p-6 lg:rounded-3xl lg:shadow-[0_8px_40px_rgb(0,0,0,0.04)] lg:border lg:border-gray-100 mt-20">
 			<form
 				onSubmit={handleSubmit(onSubmit)}
-				className="space-y-3.5 flex flex-col justify-center w-full  max-w-lg mx-auto text-left"
+				className="space-y-3.5 flex flex-col justify-center w-full max-w-lg mx-auto text-left"
 			>
 				<div className="text-center">
 					<h1 className="text-3xl font-bold text-gray-900">Create an Account</h1>
@@ -272,6 +277,13 @@ export default function RegisterPage() {
 				</p>
 			</form>
 		</div>
+	);
+}
 
+export default function RegisterPage() {
+	return (
+		<Suspense fallback={<div className="text-center py-20 text-[#124d46] font-semibold">Loading registration...</div>}>
+			<RegisterForm />
+		</Suspense>
 	);
 }
