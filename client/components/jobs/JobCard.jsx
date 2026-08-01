@@ -7,7 +7,15 @@ import { Button } from "@/components/ui/button";
 import { saveJob, removeSavedJob } from "@/services/savedJobsService";
 import { toast } from "sonner";
 import useAuth from "@/hooks/useAuth";
-import { MapPin, DollarSign, Briefcase, BookmarkPlus, BookmarkCheck, ArrowRight, Eye } from "lucide-react";
+import {
+  FileText,
+  MapPin,
+  Layers,
+  Bookmark,
+  BookmarkCheck,
+  ArrowRight,
+  Eye,
+} from "lucide-react";
 
 export default function JobCard({ job, initialSaved = false, initialApplied = false }) {
   const [isSaved, setIsSaved] = useState(initialSaved);
@@ -37,7 +45,6 @@ export default function JobCard({ job, initialSaved = false, initialApplied = fa
     }
 
     if (isSaved) {
-      // Optimistic update
       setIsSaved(false);
       try {
         await removeSavedJob(jobId);
@@ -47,7 +54,6 @@ export default function JobCard({ job, initialSaved = false, initialApplied = fa
         toast.error("Failed to remove saved job.");
       }
     } else {
-      // Optimistic update
       setIsSaved(true);
       try {
         await saveJob(jobId);
@@ -62,85 +68,90 @@ export default function JobCard({ job, initialSaved = false, initialApplied = fa
   return (
     <div
       onClick={handleCardClick}
-      className="group relative flex flex-col justify-between rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-teal-900/5 hover:border-teal-300/80 cursor-pointer overflow-hidden h-full"
+      className="group relative flex flex-col justify-between rounded-3xl bg-white border-2 border-teal-200/90 shadow-sm hover:shadow-xl hover:shadow-[#124d46]/10 hover:border-[#124d46] hover:-translate-y-1.5 transition-all duration-300 ease-out cursor-pointer overflow-hidden p-6 h-full text-slate-900"
     >
-      {/* Top accent line */}
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#124d46] to-teal-400 transform origin-left scale-x-0 transition-transform duration-300 ease-out group-hover:scale-x-100" />
-
       <div>
-        {/* Header Section */}
-        <div className="flex justify-between items-start mb-4 gap-4">
-          <div className="space-y-1">
-            <h2 className="text-xl font-bold text-slate-900 tracking-tight group-hover:text-[#124d46] transition-colors duration-200 line-clamp-2 leading-snug">
-              {job.title}
-            </h2>
-            <p className="text-[#1a7066] font-semibold text-sm tracking-wide">
+        {/* Top Header Row: Logo/Company Name & Save Bookmark */}
+        <div className="flex justify-between items-center mb-4 gap-2.5">
+          <div className="flex items-center gap-2.5 min-w-0">
+            {/* Minimalist Logo Badge */}
+            <div className="w-8 h-8 rounded-full bg-teal-50 text-[#124d46] text-xs font-extrabold flex items-center justify-center border border-teal-200 shrink-0">
+              {job.company?.slice(0, 2).toUpperCase() || "CC"}
+            </div>
+            <span className="text-base font-bold text-slate-900 tracking-tight truncate">
               {job.company}
-            </p>
+            </span>
           </div>
 
-          {/* Save button */}
           {!isApplied && (
             <button
               onClick={(e) => handleSaveToggle(e, job._id)}
-              className={`flex-shrink-0 p-2.5 rounded-full transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#124d46] ${isSaved
-                  ? "bg-teal-100 text-[#124d46] shadow-inner scale-105"
-                  : "bg-slate-50 text-slate-400 hover:bg-teal-50 hover:text-teal-600 border border-slate-100 hover:shadow-sm active:scale-95"
-                }`}
+              className="p-1 text-[#124d46] hover:text-[#0a2e2a] transition-colors cursor-pointer shrink-0"
               title={isSaved ? "Saved" : "Save Job"}
             >
               {isSaved ? (
-                <BookmarkCheck className="w-5 h-5 transition-transform duration-200" />
+                <BookmarkCheck className="w-5 h-5 fill-[#124d46] text-[#124d46]" />
               ) : (
-                <BookmarkPlus className="w-5 h-5 transition-transform duration-200" />
+                <Bookmark className="w-5 h-5" />
               )}
             </button>
           )}
         </div>
 
-        {/* Metadata Badges */}
-        <div className="flex flex-wrap gap-2 my-5">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100/80 text-slate-700 text-xs font-semibold backdrop-blur-sm border border-slate-200/50">
-            <MapPin className="w-3.5 h-3.5 text-slate-500" />
-            {job.location}
-          </span>
-          <span className="inline-flex items-center gap-1 py-1.5 px-3 rounded-full bg-teal-50/80 text-teal-800 text-xs font-semibold border border-teal-100/80">
-            <DollarSign className="w-3.5 h-3.5 text-teal-600" />
-            {job.salary}
-          </span>
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50/80 text-emerald-800 text-xs font-semibold border border-emerald-100/80">
-            <Briefcase className="w-3.5 h-3.5 text-emerald-600" />
-            {job.type}
-          </span>
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#124d46]/10 text-[#124d46] text-xs font-semibold border border-[#124d46]/10">
-            {job.category}
-          </span>
+        {/* Job Title */}
+        <h2 className="text-[20px] font-extrabold tracking-tight text-slate-900 text-center mb-4 group-hover:text-[#124d46] transition-colors leading-snug line-clamp-2">
+          {job.title}
+        </h2>
+
+        {/* Flexible Wrap Badges to prevent overflow */}
+        <div className="flex flex-wrap items-center justify-center gap-2 mb-5">
+          {job.type && (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-teal-50/80 text-[#124d46] text-xs font-semibold border border-teal-200/80 max-w-full">
+              <FileText className="w-3.5 h-3.5 text-[#124d46] shrink-0" />
+              <span className="capitalize">{job.type}</span>
+            </span>
+          )}
+          {job.location && (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-teal-50/80 text-[#124d46] text-xs font-semibold border border-teal-200/80 max-w-full">
+              <MapPin className="w-3.5 h-3.5 text-[#124d46] shrink-0" />
+              <span className="truncate max-w-[180px]">{job.location}</span>
+            </span>
+          )}
+          {job.category && (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-teal-50/80 text-[#124d46] text-xs font-semibold border border-teal-200/80 max-w-full">
+              <Layers className="w-3.5 h-3.5 text-[#124d46] shrink-0" />
+              <span className="truncate max-w-[180px]">{job.category}</span>
+            </span>
+          )}
         </div>
+
+        {/* Salary */}
+        <p className="text-center text-sm font-bold text-[#124d46] mb-5">
+          {job.salary}
+        </p>
       </div>
 
-      {/* Card Footer */}
-      <div className="flex items-center justify-between pt-4 border-t border-slate-100 mt-auto">
-        <div className="flex items-center gap-1.5 text-xs font-semibold text-teal-700 bg-teal-50/70 hover:bg-teal-50 px-3 py-1.5 rounded-lg opacity-80 group-hover:opacity-100 transition-all duration-200">
-          <Eye className="w-3.5 h-3.5 text-teal-600" />
+      {/* Bottom Footer Actions */}
+      <div className="flex items-center justify-between pt-3.5 border-t border-slate-100 mt-auto gap-3">
+        {/* Eye icon + View Details with larger rounded border button */}
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border-2 border-[#124d46]/70 text-[#124d46] group-hover:bg-[#124d46] group-hover:text-white text-sm font-bold transition-all shadow-2xs shrink-0 cursor-pointer">
+          <Eye className="w-4 h-4 text-[#124d46] group-hover:text-white transition-colors" />
           <span>View Details</span>
         </div>
 
-        <div onClick={(e) => e.stopPropagation()}>
+        <div onClick={(e) => e.stopPropagation()} className="shrink-0">
           {isApplied ? (
-            <Button
-              disabled
-              className="bg-slate-100 text-slate-400 hover:bg-slate-100 border-none rounded-full px-5 py-2 text-xs font-semibold cursor-not-allowed opacity-90"
-            >
+            <span className="inline-flex items-center text-sm font-semibold text-[#124d46] bg-teal-50 px-5 py-2.5 rounded-full border border-teal-200">
               Applied ✓
-            </Button>
+            </span>
           ) : (
             <Button
               asChild
-              className="bg-[#124d46] hover:bg-[#0a2e2a] text-white rounded-full px-5 py-2 text-xs font-semibold shadow-sm shadow-[#124d46]/20 transition-all duration-300 hover:shadow-md hover:shadow-[#124d46]/30 active:scale-95 group/btn"
+              className="bg-[#124d46] hover:bg-[#0a2e2a] text-white font-bold rounded-full px-5 py-2.5 text-sm shadow-md shadow-[#124d46]/20 active:scale-95 transition-all h-auto"
             >
-              <Link href={`/jobs/${job._id}`} className="flex items-center gap-1.5">
-                <span>Apply Now</span>
-                <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover/btn:translate-x-0.5" />
+              <Link href={`/jobs/${job._id}`} className="flex items-center gap-2">
+                <span>Apply</span>
+                <ArrowRight className="w-4 h-4" />
               </Link>
             </Button>
           )}

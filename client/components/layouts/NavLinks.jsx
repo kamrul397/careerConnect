@@ -28,13 +28,6 @@ export default function NavLinks({ user, role }) {
 			)}
 
 			<Link href="/about" className={getLinkClasses("/about")}><HiInformationCircle className="text-xl" /> About</Link>
-
-			{/* Logged in users */}
-			{user && (
-				<>
-					<Link href="/dashboard" className={getLinkClasses("/dashboard")}></Link>
-				</>
-			)}
 		</div>
 	);
 }

@@ -14,7 +14,7 @@ import {
   Headset,
   Wrench,
   Layers,
-  ArrowRight
+  ArrowRight,
 } from "lucide-react";
 
 // Helper to map category names to icons dynamically
@@ -39,31 +39,30 @@ export default function Categories() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center py-20 bg-white">
+      <div className="flex justify-center items-center py-12 bg-transparent">
         <LoadingSpinner />
       </div>
     );
   }
 
   return (
-    <section className="py-12 bg-transparent relative overflow-hidden">
-      {/* Subtle background decoration */}
-      <div className="absolute top-0 right-0 w-1/2 h-full bg-slate-50 transform -skew-x-12 translate-x-20 pointer-events-none" />
-
+    <section className="py-8 md:py-10 bg-transparent relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-5 relative z-10">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
-          <div className="max-w-2xl">
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 gap-4">
+          <div>
             <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
-              Browse by <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-blue-600">Category</span>
+              Browse by <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#124d46] to-teal-600">Category</span>
             </h2>
-            <p className="text-base text-slate-600 mt-2 leading-relaxed max-w-xl">
-              Explore thousands of job opportunities across specialized industries and find your perfect fit.
+            <p className="text-base text-slate-600 mt-1.5 font-medium">
+              Explore job opportunities across specialized industries and find your perfect fit.
             </p>
           </div>
+
           <div className="hidden md:block">
             <Link
               href="/jobs"
-              className="group inline-flex items-center gap-2 text-teal-700 font-semibold hover:text-teal-800 transition-colors"
+              className="group inline-flex items-center gap-1.5 text-[#124d46] font-bold text-base hover:text-[#0a2e2a] transition-colors"
             >
               View all categories
               <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
@@ -71,28 +70,30 @@ export default function Categories() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        {/* Compact Grid with Larger Text & Icons */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4">
           {categories.map((category) => (
             <Link
               key={category.name}
               href={`/jobs?category=${encodeURIComponent(category.name)}`}
-              className="group relative flex flex-col items-center bg-white rounded-xl p-4 border border-slate-200/60 shadow-sm hover:shadow-md hover:-translate-y-1 hover:border-teal-300 transition-all duration-300 overflow-hidden text-center"
+              className="group flex items-center gap-4 bg-white/90 backdrop-blur-md rounded-2xl p-4 border-2 border-teal-100/90 shadow-xs hover:shadow-md hover:border-[#124d46] hover:-translate-y-0.5 transition-all duration-200 overflow-hidden cursor-pointer"
             >
-              {/* Subtle hover gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-br from-teal-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-
-              {/* Icon Container */}
-              <div className="relative z-10 mb-3 p-3 bg-slate-50 text-slate-700 rounded-full group-hover:bg-teal-600 group-hover:text-white group-hover:shadow-md group-hover:shadow-teal-600/20 transition-all duration-300">
+              {/* Larger Icon Container */}
+              <div className="w-12 h-12 rounded-2xl bg-teal-50 text-[#124d46] flex items-center justify-center shrink-0 border border-teal-200/80 group-hover:bg-[#124d46] group-hover:text-white transition-all duration-200 shadow-xs">
                 {getCategoryIcon(category.name)}
               </div>
 
-              <h3 className="relative z-10 text-base font-bold text-slate-800 group-hover:text-teal-900 transition-colors">
-                {category.name}
-              </h3>
+              {/* Text Info: Larger Category Name + Jobs Count */}
+              <div className="min-w-0 flex-1">
+                <h3 className="text-base md:text-lg font-bold text-slate-900 group-hover:text-[#124d46] transition-colors truncate">
+                  {category.name}
+                </h3>
+                <p className="text-xs md:text-sm font-semibold text-teal-700/90 mt-0.5">
+                  {category.jobs} {category.jobs === 1 ? "job available" : "jobs available"}
+                </p>
+              </div>
 
-              <p className="relative z-10 text-xs font-medium text-slate-500 mt-1 bg-slate-100 px-2 py-0.5 rounded-full group-hover:bg-white/80 transition-colors">
-                {category.jobs} {category.jobs === 1 ? 'Job' : 'Jobs'}
-              </p>
+              <ArrowRight className="w-5 h-5 text-slate-300 group-hover:text-[#124d46] group-hover:translate-x-1 transition-all shrink-0" />
             </Link>
           ))}
         </div>
@@ -101,7 +102,7 @@ export default function Categories() {
         <div className="mt-8 text-center md:hidden">
           <Link
             href="/jobs"
-            className="inline-flex items-center justify-center gap-2 w-full sm:w-auto bg-slate-100 text-slate-800 px-6 py-2.5 rounded-xl font-semibold hover:bg-slate-200 transition-all shadow-sm active:scale-95"
+            className="inline-flex items-center justify-center gap-2 w-full sm:w-auto bg-[#124d46] text-white px-7 py-3.5 rounded-xl font-bold text-sm hover:bg-[#0a2e2a] transition-all shadow-sm active:scale-95"
           >
             View All Categories
             <ArrowRight className="w-4 h-4" />

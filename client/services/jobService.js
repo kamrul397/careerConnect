@@ -40,8 +40,16 @@ export const updateJobStatus = async (id, status) => {
 };
 
 // get approved jobs
-export const getApprovedJobs = async () => {
-	const { data } = await axios.get("/api/jobs");
+export const getApprovedJobs = async (params = {}) => {
+	const queryParams = new URLSearchParams();
+	if (params.category && params.category !== "All") queryParams.append("category", params.category);
+	if (params.type && params.type !== "All") queryParams.append("type", params.type);
+	if (params.search) queryParams.append("search", params.search);
+
+	const queryString = queryParams.toString();
+	const url = queryString ? `/api/jobs?${queryString}` : "/api/jobs";
+
+	const { data } = await axios.get(url);
 	return data;
 };
 

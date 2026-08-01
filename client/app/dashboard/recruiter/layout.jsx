@@ -6,9 +6,9 @@ import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 export default function RecruiterLayout({ children }) {
 	return (
 		<RoleGuard role="recruiter">
-			<div className="flex flex-col lg:flex-row gap-4 lg:gap-6 min-h-[calc(100vh-4rem)]">
+			<div className="flex flex-col lg:flex-row gap-4 lg:gap-6 lg:items-start">
 				<DashboardSidebar role="recruiter" />
-				<main className="flex-1 min-w-0">
+				<main className="flex-1">
 					{children}
 				</main>
 			</div>

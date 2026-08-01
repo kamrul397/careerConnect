@@ -54,7 +54,7 @@ const steps = [
 
 export default function HowItWorks() {
   return (
-    <section className="relative py-20 bg-transparent overflow-hidden">
+    <section className="relative py-5 bg-transparent overflow-hidden">
       {/* Decorative Blur Background Elements */}
       <div className="absolute top-1/2 left-0 -translate-y-1/2 w-96 h-96 bg-teal-200/30 rounded-full mix-blend-multiply filter blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-emerald-200/30 rounded-full mix-blend-multiply filter blur-3xl pointer-events-none" />
@@ -75,7 +75,7 @@ export default function HowItWorks() {
 
         {/* 4 Step Cards Grid with Desktop Connecting Flow */}
         <div className="relative grid sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-          
+
           {/* Desktop Connecting Line behind cards */}
           <div className="hidden lg:block absolute top-1/2 left-12 right-12 h-0.5 bg-gradient-to-r from-teal-200 via-emerald-300 to-teal-200 -translate-y-6 z-0" />
 

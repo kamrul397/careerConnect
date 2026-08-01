@@ -2,25 +2,28 @@
 
 import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import { toast } from "sonner";
 import LoadingSpinner from "../shared/LoadingSpinner";
 import useAuth from "@/hooks/useAuth";
 
-// import LoadingSpinner from "@/components/shared/LoadingSpinner";
-// import useAuth from "@/hooks/useAuth";
-
 export default function ProtectedRoute({ children }) {
-	const { user, loading } = useAuth();
+	const { user, dbUser, loading } = useAuth();
 
 	const router = useRouter();
 	const pathname = usePathname();
 
 	useEffect(() => {
-		if (!loading && !user) {
-			router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
+		if (!loading) {
+			if (!user) {
+				router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
+			} else if (!dbUser) {
+				toast.error("Please complete profile first");
+				router.replace("/complete-profile");
+			}
 		}
-	}, [loading, user, router, pathname]);
+	}, [loading, user, dbUser, router, pathname]);
 
-	if (loading) {
+	if (loading || (user && !dbUser)) {
 		return <LoadingSpinner />;
 	}
 

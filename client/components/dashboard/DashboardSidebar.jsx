@@ -67,6 +67,11 @@ export default function DashboardSidebar({ role }) {
         href: "/dashboard/recruiter/my-jobs",
         icon: BriefcaseBusiness,
       },
+      {
+        name: "Profile",
+        href: "/dashboard/recruiter/profile",
+        icon: Users,
+      },
     ];
   }
 
@@ -155,7 +160,7 @@ export default function DashboardSidebar({ role }) {
       </div>
 
       {/* DESKTOP STICKY SIDEBAR (>= lg screens) */}
-      <aside className="hidden lg:flex w-64 border border-slate-100 bg-white rounded-2xl p-5 flex-col h-[calc(100vh-3rem)] sticky top-6 shadow-[2px_0_15px_-3px_rgba(0,0,0,0.03)] shrink-0">
+      <aside className="hidden lg:flex w-64 border border-slate-100 bg-white rounded-2xl p-5 flex-col h-[calc(100vh-4rem)] sticky top-8 shadow-[2px_0_15px_-3px_rgba(0,0,0,0.03)] shrink-0">
         <div className="mb-8 pl-2 flex items-center">
           <Logo className="text-2xl" />
         </div>

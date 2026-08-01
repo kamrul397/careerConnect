@@ -14,8 +14,6 @@ import {
   Mail,
   MapPin,
   Phone,
-  FileText,
-  CheckCircle2,
   Pencil,
   X,
   Save,
@@ -24,26 +22,13 @@ import {
 } from "lucide-react";
 import { HiUserCircle } from "react-icons/hi";
 
-const formatResumeDate = (date) => {
-  if (!date) return "";
-  return new Date(date).toLocaleDateString("en-US", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-};
-
-export default function ProfilePage() {
+export default function RecruiterProfilePage() {
   const { dbUser, refreshDbUser, logoutUser } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [photoModalOpen, setPhotoModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(null);
-  const [uploadError, setUploadError] = useState("");
-  const [showUploadForm, setShowUploadForm] = useState(false);
 
-  const fileInputRef = useRef(null);
   const photoInputRef = useRef(null);
 
   // 1. Handle Profile Info Update (Name, Phone, Location, Bio)
@@ -132,106 +117,27 @@ export default function ProfilePage() {
     }
   };
 
-  // 3. Handle Resume PDF Upload
-  const handleUploadResume = async (e) => {
-    e.preventDefault();
-    setUploadError("");
-
-    const file = fileInputRef.current?.files?.[0];
-
-    if (!file) return setUploadError("Please select a PDF file.");
-    if (file.type !== "application/pdf") return setUploadError("Only PDF files are allowed.");
-    if (file.size > 5 * 1024 * 1024) return setUploadError("File size must be under 5MB.");
-    if (!dbUser?.email) return setUploadError("User not found. Please log in again.");
-
-    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-    const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
-
-    if (!cloudName || !uploadPreset) {
-      return setUploadError("Cloudinary is not configured. Check your .env.local file.");
-    }
-
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", uploadPreset);
-    formData.append(
-      "public_id",
-      `resumes/${dbUser.email.replace("@", "_at_").replace(/\./g, "_")}/resume_${Date.now()}`
-    );
-
-    setUploadProgress(0);
-
-    try {
-      const xhr = new XMLHttpRequest();
-
-      xhr.upload.addEventListener("progress", (event) => {
-        if (event.lengthComputable) {
-          const progress = Math.round((event.loaded / event.total) * 100);
-          setUploadProgress(progress);
-        }
-      });
-
-      xhr.addEventListener("load", async () => {
-        if (xhr.status === 200) {
-          const response = JSON.parse(xhr.responseText);
-          const downloadURL = response.secure_url;
-
-          try {
-            await updateUserProfile(dbUser.email, {
-              resumeUrl: downloadURL,
-              resumeUploadedAt: new Date().toISOString(),
-              resumeName: file.name,
-            });
-            await refreshDbUser(dbUser.email);
-            setUploadProgress(null);
-            setShowUploadForm(false);
-            if (fileInputRef.current) fileInputRef.current.value = "";
-            toast.success("Resume uploaded successfully!");
-          } catch {
-            setUploadError("Resume uploaded but failed to save user profile. Please try again.");
-            setUploadProgress(null);
-          }
-        } else {
-          setUploadError(`Upload failed (${xhr.status}). Please try again.`);
-          setUploadProgress(null);
-        }
-      });
-
-      xhr.addEventListener("error", () => {
-        setUploadError("Network error. Please check your connection.");
-        setUploadProgress(null);
-      });
-
-      xhr.open("POST", `https://api.cloudinary.com/v1_1/${cloudName}/raw/upload`);
-      xhr.send(formData);
-    } catch (err) {
-      console.error(err);
-      setUploadError("An unexpected error occurred.");
-      setUploadProgress(null);
-    }
-  };
-
   return (
     <div className="max-w-4xl mx-auto space-y-7">
 
-      {/* Top Profile Summary Card (Original Full Header & Avatar) */}
+      {/* Top Profile Summary Card */}
       <div className="bg-gradient-to-r from-[#124d46] to-[#0a2e2a] rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
         <div className="absolute top-0 right-0 w-80 h-80 bg-teal-400/10 rounded-full blur-3xl pointer-events-none" />
 
         <Button
-            variant="secondary"
-            className="absolute top-4 right-4 z-20 bg-white/20 hover:bg-white/30 text-white border border-white/30 shadow-md font-bold rounded-xl transition-all"
-            onClick={async () => {
-              try {
-                await logoutUser();
-                toast.success("Logged out successfully");
-              } catch (error) {
-                toast.error("Failed to log out");
-              }
-            }}
+          variant="secondary"
+          className="absolute top-4 right-4 z-20 bg-white/20 hover:bg-white/30 text-white border border-white/30 shadow-md font-bold rounded-xl transition-all"
+          onClick={async () => {
+            try {
+              await logoutUser();
+              toast.success("Logged out successfully");
+            } catch (error) {
+              toast.error("Failed to log out");
+            }
+          }}
         >
-            <LogOut className="w-4 h-4 mr-2" />
-            Logout
+          <LogOut className="w-4 h-4 mr-2" />
+          Logout
         </Button>
 
         <div className="flex flex-col sm:flex-row items-center gap-6 relative z-10">
@@ -327,127 +233,6 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Resume Section */}
-      <div className="border border-slate-200/90 rounded-3xl p-4 bg-white shadow-sm space-y-2">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-          <div className="flex items-center gap-2">
-            <FileText className="w-5 h-5 text-teal-600" />
-            <h2 className="text-xl font-bold text-slate-900">Resume &amp; Portfolio</h2>
-          </div>
-
-          {dbUser?.resumeUrl && !showUploadForm && (
-            <button
-              type="button"
-              onClick={() => setShowUploadForm(true)}
-              className="text-xs px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition font-semibold"
-            >
-              🔄 Replace Resume
-            </button>
-          )}
-          {showUploadForm && dbUser?.resumeUrl && (
-            <button
-              type="button"
-              onClick={() => {
-                setShowUploadForm(false);
-                setUploadError("");
-              }}
-              className="text-xs px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition font-semibold"
-            >
-              ✕ Cancel
-            </button>
-          )}
-        </div>
-
-        {/* Resume Display Card */}
-        {dbUser?.resumeUrl && !showUploadForm ? (
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center text-2xl shrink-0 text-red-600">
-                📄
-              </div>
-              <div>
-                <p className="font-bold text-slate-900 text-base">
-                  {dbUser.resumeName || "Resume.pdf"}
-                </p>
-                <p className="text-xs text-emerald-600 font-semibold mt-0.5 flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  Uploaded &amp; Verified
-                </p>
-                {dbUser.resumeUploadedAt && (
-                  <p className="text-xs text-slate-500 mt-1">
-                    Uploaded on: {formatResumeDate(dbUser.resumeUploadedAt)}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div className="flex gap-3 shrink-0 w-full sm:w-auto">
-              <a
-                href={dbUser.resumeUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="flex-1 sm:flex-initial px-4 py-2 rounded-xl bg-[#124d46] text-white text-xs font-semibold hover:bg-[#0a2e2a] transition text-center"
-              >
-                👁 View PDF
-              </a>
-              <a
-                href={dbUser.resumeUrl}
-                target="_blank"
-                rel="noreferrer"
-                download
-                className="flex-1 sm:flex-initial px-4 py-2 rounded-xl border border-slate-300 bg-white text-slate-700 text-xs font-semibold hover:bg-slate-50 transition text-center"
-              >
-                ⬇ Download
-              </a>
-            </div>
-          </div>
-        ) : (
-          /* Upload PDF Form */
-          <div className="border-2 border-dashed border-slate-300 hover:border-teal-400 rounded-2xl p-6 text-center bg-slate-50/50 transition">
-            <div className="text-4xl mb-2">📄</div>
-            <p className="text-sm text-slate-700 mb-1 font-semibold">
-              {dbUser?.resumeUrl
-                ? "Upload a new PDF to replace your current resume"
-                : "Upload your resume to get started"}
-            </p>
-            <p className="text-xs text-slate-400 mb-5">PDF document only · Max file size 5MB</p>
-
-            <form onSubmit={handleUploadResume} className="space-y-3 max-w-sm mx-auto">
-              <Input
-                type="file"
-                accept=".pdf"
-                ref={fileInputRef}
-                disabled={uploadProgress !== null}
-              />
-              {uploadError && (
-                <p className="text-red-500 text-xs text-left">{uploadError}</p>
-              )}
-              {uploadProgress !== null && (
-                <div className="space-y-1">
-                  <div className="w-full bg-slate-200 rounded-full h-2">
-                    <div
-                      className="bg-teal-600 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${uploadProgress}%` }}
-                    />
-                  </div>
-                  <p className="text-xs text-teal-700 text-center font-semibold">
-                    {uploadProgress}% uploading...
-                  </p>
-                </div>
-              )}
-              <Button
-                type="submit"
-                className="w-full bg-[#124d46] hover:bg-[#0a2e2a] text-white rounded-xl py-2.5 font-semibold text-sm"
-                disabled={uploadProgress !== null}
-              >
-                {uploadProgress !== null ? "Uploading..." : "Upload Resume"}
-              </Button>
-            </form>
-          </div>
-        )}
-      </div>
-
-
       {/* Personal Information Card (Compact Padding & Tight Margins) */}
       <div
         className={`rounded-3xl p-3.5 transition-all duration-300 ${isEditing
@@ -455,7 +240,7 @@ export default function ProfilePage() {
           : "bg-white border border-slate-200/90 shadow-sm"
           }`}
       >
-        <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-slate-100 mb-3">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100">
           <div className="flex items-center gap-2">
             <User className="w-5 h-5 text-[#124d46]" />
             <h2 className="text-xl font-bold text-slate-900">Personal Information</h2>
@@ -584,7 +369,7 @@ export default function ProfilePage() {
                 id="bio"
                 name="bio"
                 rows={5}
-                placeholder="Tell recruiters about yourself, your skills, experience, and career goals..."
+                placeholder="Tell candidates about your company, your role, and what you're looking for..."
                 defaultValue={dbUser?.bio || ""}
                 className="w-full p-3 rounded-xl bg-white border-2 border-slate-300 focus:border-[#124d46] focus:ring-2 focus:ring-[#124d46]/20 font-semibold text-slate-900 text-base leading-snug outline-none transition-all shadow-xs resize-y min-h-[140px]"
               />

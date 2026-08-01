@@ -33,35 +33,43 @@ export default function AuthProvider({ children }) {
 	const refreshDbUser = async (email = user?.email) => {
 		if (!email) return;
 
+		if (user) {
+			try {
+				await getJwt({
+					email: user.email,
+					uid: user.uid,
+				});
+			} catch (error) {
+				console.error("Failed to update JWT on user refresh:", error);
+			}
+		}
+
 		await loadDbUser(email);
 	};
 
 	useEffect(() => {
 		const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-			setUser(currentUser);
-
 			if (currentUser) {
+				setLoading(true);
+				setUser(currentUser);
 				console.log(currentUser);
 				try {
 					// Create HTTP-only cookie
 					await getJwt({
 						email: currentUser.email,
 						uid: currentUser.uid,
-						// role: currentUser.role
 					});
 				} catch (error) {
 					console.error("Failed to set JWT:", error);
 				}
 
-				// const result = await testJwt();
-				// console.log(result);
-
 				await loadDbUser(currentUser.email);
+				setLoading(false);
 			} else {
+				setUser(null);
 				setDbUser(null);
+				setLoading(false);
 			}
-
-			setLoading(false);
 		});
 
 		return unsubscribe;

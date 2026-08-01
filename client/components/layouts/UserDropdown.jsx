@@ -78,7 +78,10 @@ export default function UserDropdown() {
 				{/* Action Links */}
 				<DropdownMenuGroup>
 					<DropdownMenuItem asChild className="cursor-pointer focus:bg-gray-50 hover:bg-gray-50 rounded-lg transition-colors mb-1">
-						<Link href="/dashboard/candidate/profile" className="flex w-full items-center">
+						<Link 
+							href={dbUser?.role === "recruiter" ? "/dashboard/recruiter/profile" : "/dashboard/candidate/profile"} 
+							className="flex w-full items-center"
+						>
 							<User className="mr-2 h-4 w-4 text-teal-700" />
 							<span>My Profile</span>
 						</Link>

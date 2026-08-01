@@ -52,92 +52,90 @@ export default function DashboardHeader() {
 	}, []);
 
 	return (
-
-		<header className="border-b p-4 ">
-
-			<Button
-				variant="outline"
-				onClick={() => router.back()}
-			>
-				← Back
-			</Button>
-
-			<div className="space-y-8">
-				<div>
-					<h1 className="text-3xl font-bold">
-						Admin Dashboard
+		<div className="flex flex-col gap-4 lg:gap-6 animate-in fade-in duration-500">
+			{/* Premium Header */}
+			<div className="bg-gradient-to-r from-[#124d46] to-teal-700 rounded-2xl p-6 md:p-8 text-white shadow-md relative overflow-hidden flex-shrink-0">
+				<div className="absolute top-[-50%] right-[-5%] w-64 h-64 bg-teal-400 rounded-full mix-blend-screen filter blur-[60px] opacity-30"></div>
+				<div className="relative z-10">
+					<h1 className="text-3xl md:text-4xl font-bold tracking-tight">
+						Admin Dashboard 👑
 					</h1>
-
-					<p className="text-muted-foreground mt-2">
-						Manage users, recruiters and job approvals.
+					<p className="text-teal-50 mt-2 md:mt-3 text-lg max-w-xl leading-relaxed opacity-90">
+						Manage users, recruiters, and approve new job postings.
 					</p>
-				</div>
-
-				<div className="grid gap-6 md:grid-cols-4">
-					<div className="border rounded-lg p-6">
-						<h3 className="text-sm text-muted-foreground">
-
-							<Link href={'admin/pending-jobs'}>Pending Jobs</Link>
-						</h3>
-
-						<p className="text-4xl font-bold mt-3">
-							{loading ? "..." : stats.pendingJobs}
-						</p>
-					</div>
-
-					<div className="border rounded-lg p-6">
-						<h3 className="text-sm text-muted-foreground">
-							Approved Jobs
-						</h3>
-
-						<p className="text-4xl font-bold mt-3">
-							{loading ? "..." : stats.approvedJobs}
-						</p>
-					</div>
-
-					<div className="border rounded-lg p-6">
-						<h3 className="text-sm text-muted-foreground">
-							Recruiters
-						</h3>
-
-						<p className="text-4xl font-bold mt-3">
-							{loading ? "..." : stats.recruiters}
-						</p>
-					</div>
-
-					<div className="border rounded-lg p-6">
-						<h3 className="text-sm text-muted-foreground">
-							Candidates
-						</h3>
-
-						<p className="text-4xl font-bold mt-3">
-							{loading ? "..." : stats.candidates}
-						</p>
-					</div>
-				</div>
-
-				<div className="border rounded-lg p-6">
-					<h2 className="text-xl font-semibold mb-4">
-						Quick Actions
-					</h2>
-
-					<div className="flex flex-wrap gap-4">
-						<Link href="/dashboard/admin/pending-jobs" className="rounded-md border px-4 py-2 hover:bg-muted transition-colors">
-							Review Pending Jobs
-						</Link>
-
-						<Link href="/dashboard/admin/users" className="rounded-md border px-4 py-2 hover:bg-muted transition-colors">
-							Manage Users
-						</Link>
-
-						<Link href="/dashboard/admin/reports" className="rounded-md border px-4 py-2 hover:bg-muted transition-colors">
-							View Reports
-						</Link>
-					</div>
 				</div>
 			</div>
 
-		</header>
+			{/* Stats Grid */}
+			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 flex-shrink-0">
+				<div className="bg-white border border-slate-100 rounded-xl p-6 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 group">
+					<div className="flex items-center justify-between">
+						<h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider group-hover:text-amber-600 transition-colors">
+							<Link href="/dashboard/admin/pending-jobs" className="hover:underline">Pending Jobs</Link>
+						</h3>
+					</div>
+					<p className="text-4xl font-extrabold mt-4 text-slate-800">
+						{loading ? <span className="animate-pulse text-slate-300">...</span> : stats.pendingJobs}
+					</p>
+				</div>
 
+				<div className="bg-white border border-slate-100 rounded-xl p-6 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 group">
+					<div className="flex items-center justify-between">
+						<h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider group-hover:text-emerald-600 transition-colors">
+							Approved Jobs
+						</h3>
+					</div>
+					<p className="text-4xl font-extrabold mt-4 text-slate-800">
+						{loading ? <span className="animate-pulse text-slate-300">...</span> : stats.approvedJobs}
+					</p>
+				</div>
+
+				<div className="bg-white border border-slate-100 rounded-xl p-6 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 group">
+					<div className="flex items-center justify-between">
+						<h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider group-hover:text-blue-600 transition-colors">
+							Recruiters
+						</h3>
+					</div>
+					<p className="text-4xl font-extrabold mt-4 text-slate-800">
+						{loading ? <span className="animate-pulse text-slate-300">...</span> : stats.recruiters}
+					</p>
+				</div>
+
+				<div className="bg-white border border-slate-100 rounded-xl p-6 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 group">
+					<div className="flex items-center justify-between">
+						<h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider group-hover:text-indigo-600 transition-colors">
+							Candidates
+						</h3>
+					</div>
+					<p className="text-4xl font-extrabold mt-4 text-slate-800">
+						{loading ? <span className="animate-pulse text-slate-300">...</span> : stats.candidates}
+					</p>
+				</div>
+			</div>
+
+			{/* Quick Actions */}
+			<div className="bg-white border border-slate-100 rounded-xl p-6 lg:p-8 shadow-sm flex flex-col justify-center flex-1 min-h-[140px]">
+				<div className="text-xl font-bold text-slate-800 mb-6">Quick Actions</div>
+				<div className="flex flex-wrap gap-4">
+					<Button asChild className="bg-amber-500 hover:bg-amber-600 text-white px-6 py-6 rounded-xl shadow-lg shadow-amber-500/20 transition-all hover:shadow-amber-500/40 font-medium text-base">
+						<Link href="/dashboard/admin/pending-jobs">
+							Review Pending Jobs
+						</Link>
+					</Button>
+
+					<Button asChild variant="outline" className="px-6 py-6 rounded-xl border-slate-200 text-slate-600 hover:text-[#124d46] hover:bg-teal-50 hover:border-teal-200 transition-all font-medium text-base">
+						<Link href="/dashboard/admin/users">
+							Manage Users
+						</Link>
+					</Button>
+
+					<Button asChild variant="outline" className="px-6 py-6 rounded-xl border-slate-200 text-slate-600 hover:text-[#124d46] hover:bg-teal-50 hover:border-teal-200 transition-all font-medium text-base">
+						<Link href="/dashboard/admin/reports">
+							View Reports
+						</Link>
+					</Button>
+				</div>
+			</div>
+		</div>
 	);
 }

@@ -60,17 +60,22 @@ export default function ManageUsersPage() {
 
     return (
         <div className="space-y-6">
-            {/* Page Header */}
-            <div className="flex items-center justify-between border-b pb-4">
-                <div>
-                    <h1 className="text-2xl font-bold">Manage Users</h1>
-                    <p className="text-sm text-muted-foreground">
-                        Overview of all registered users in the platform.
-                    </p>
+            {/* Premium Header */}
+            <div className="bg-gradient-to-r from-[#124d46] to-teal-700 rounded-2xl p-6 md:p-8 text-white shadow-md relative overflow-hidden mb-6 flex-shrink-0">
+                <div className="absolute top-[-50%] right-[-5%] w-64 h-64 bg-teal-400 rounded-full mix-blend-screen filter blur-[60px] opacity-30"></div>
+                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
+                            Manage Users
+                        </h1>
+                        <p className="text-teal-50 mt-2 md:mt-3 text-lg max-w-xl leading-relaxed opacity-90">
+                            Overview of all registered users in the platform.
+                        </p>
+                    </div>
+                    <Badge variant="outline" className="text-sm px-4 py-2 bg-white/10 hover:bg-white/20 border-white/30 text-white font-bold tracking-wide">
+                        Total Users: {users.length}
+                    </Badge>
                 </div>
-                <Badge variant="outline" className="text-sm px-3 py-1">
-                    Total Users: {users.length}
-                </Badge>
             </div>
 
             {/* Users Table */}

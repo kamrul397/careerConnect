@@ -13,7 +13,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={outfit.className}>
-      <body className="antialiased text-gray-800">
+      <body className="antialiased text-gray-800 overflow-y-scroll">
         <AuthProvider>
           {children}
           <Toaster richColors position="top-right" duration={500} />

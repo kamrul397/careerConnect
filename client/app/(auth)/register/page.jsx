@@ -14,6 +14,7 @@ import { saveUser } from "@/services/userService";
 import { saveJob } from "@/services/savedJobsService";
 import { registerSchema } from "@/validations/auth.validation";
 import { getFirebaseErrorMessage } from "@/utils/firebaseErrors";
+import { getJwt } from "@/services/authApi";
 import GoogleLoginButton from "@/components/auth/GoogleLoginButton";
 
 function RegisterForm() {
@@ -37,10 +38,12 @@ function RegisterForm() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const jobIdToSave = searchParams.get("saveJob");
+	const redirectUrl = searchParams.get("redirect");
 	const { user, refreshDbUser } = useAuth();
+	const isAuthActionInProgress = React.useRef(false);
 
 	React.useEffect(() => {
-		if (user) {
+		if (user && !isAuthActionInProgress.current) {
 			router.replace("/dashboard");
 		}
 	}, [user, router]);
@@ -55,6 +58,7 @@ function RegisterForm() {
 	};
 
 	const onSubmit = async (data) => {
+		isAuthActionInProgress.current = true;
 		try {
 			let photoUrl = "";
 
@@ -93,12 +97,12 @@ function RegisterForm() {
 			}
 
 			// 1. Create Firebase account
-			await registerUser(data.email, data.password);
+			const userCredential = await registerUser(data.email, data.password);
 
 			// 2. Update Firebase profile
 			await updateUserProfile(data.name, photoUrl);
 
-			// 3. Save user in MongoDB
+			// 3. Save user in MongoDB FIRST so the backend has their selected role
 			await saveUser({
 				name: data.name,
 				email: data.email,
@@ -107,6 +111,14 @@ function RegisterForm() {
 				createdAt: new Date(),
 			});
 
+			// 4. Explicitly generate the JWT cookie NOW. Since the user is in MongoDB,
+			// the backend will correctly assign their role (e.g., 'candidate') to the token.
+			await getJwt({
+				email: userCredential.user.email,
+				uid: userCredential.user.uid,
+			});
+
+			// 5. Update local context
 			await refreshDbUser(data.email);
 
 			reset();
@@ -121,6 +133,9 @@ function RegisterForm() {
 					toast.error("Failed to auto-save job.");
 				}
 				router.push("/dashboard/candidate/saved-jobs");
+			} else if (redirectUrl) {
+				toast.success("Account created successfully!");
+				router.push(redirectUrl);
 			} else {
 				toast.success("Account created successfully!");
 				router.push("/");
@@ -269,7 +284,7 @@ function RegisterForm() {
 				<p className="text-center text-base text-gray-600">
 					Already have an account?
 					<Link
-						href="/login"
+						href={`/login${searchParams.toString() ? `?${searchParams.toString()}` : ''}`}
 						className="text-[#124d46] font-semibold ml-1.5 hover:underline"
 					>
 						Login here

@@ -22,15 +22,18 @@ export default function PendingJobsTable() {
   return (
     <div className="space-y-6">
 
-      <div>
-        <h1 className="text-3xl font-bold">
-          Pending Jobs
-        </h1>
-
-        <p className="text-muted-foreground">
-          Review recruiter submissions.
-        </p>
-      </div>
+			{/* Premium Header */}
+			<div className="bg-gradient-to-r from-[#124d46] to-teal-700 rounded-2xl p-6 md:p-8 text-white shadow-md relative overflow-hidden mb-6 flex-shrink-0">
+				<div className="absolute top-[-50%] right-[-5%] w-64 h-64 bg-teal-400 rounded-full mix-blend-screen filter blur-[60px] opacity-30"></div>
+				<div className="relative z-10">
+					<h1 className="text-3xl md:text-4xl font-bold tracking-tight">
+						Pending Jobs
+					</h1>
+					<p className="text-teal-50 mt-2 md:mt-3 text-lg max-w-xl leading-relaxed opacity-90">
+						Review recruiter submissions and approve new opportunities.
+					</p>
+				</div>
+			</div>
 
       <div className="overflow-x-auto border rounded-lg">
         <table className="w-full">

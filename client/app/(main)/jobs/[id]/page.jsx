@@ -92,7 +92,7 @@ export default function JobDetailsPage() {
   const handleApply = async () => {
     if (!dbUser?.email) {
       toast.error("Please login first to apply.");
-      router.push(`/login?saveJob=${job._id}`);
+      router.push(`/login?redirect=/jobs/${job._id}`);
       return;
     }
 
