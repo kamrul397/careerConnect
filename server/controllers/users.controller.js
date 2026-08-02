@@ -154,3 +154,27 @@ export const deleteUser = async (req, res) => {
     });
   }
 };
+
+// Get public candidates count
+export const getCandidatesCount = async (req, res) => {
+  try {
+    const db = req.app.locals.db;
+    const usersCollection = db.collection("users");
+
+    const candidatesCount = await usersCollection.countDocuments({
+      role: { $in: ["candidate", "user"] }
+    });
+
+    const totalUsers = await usersCollection.countDocuments({});
+
+    res.status(200).json({
+      success: true,
+      count: candidatesCount || totalUsers,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

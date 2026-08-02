@@ -35,6 +35,10 @@ export default function Navbar() {
 		return () => window.removeEventListener("scroll", handleScroll);
 	}, [prevScrollPos]);
 
+	useEffect(() => {
+		setOpen(false);
+	}, [pathname]);
+
 	return (
 		<header className={`fixed top-0 md:top-3 left-0 right-0 z-50 px-0 md:px-6 w-full flex justify-center transition-transform duration-300 ${visible ? "translate-y-0" : "-translate-y-[150%]"}`}>
 			{/* Main Outer Floating Container */}
@@ -111,27 +115,27 @@ export default function Navbar() {
 
 			{/* Mobile Drawer Menu */}
 			{open && (
-				<div className="md:hidden absolute top-16 left-4 right-4 bg-white rounded-3xl shadow-xl border border-slate-100 p-5 flex flex-col gap-3 transition-all duration-300">
-					<NavLinks user={user} role={dbUser?.role} />
+				<div className="md:hidden absolute top-16 left-4 right-4 bg-white/98 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-200/90 p-5 flex flex-col items-center justify-center text-center gap-4 transition-all duration-300 animate-in fade-in slide-in-from-top-2">
+					<NavLinks user={user} role={dbUser?.role} onItemClick={() => setOpen(false)} />
 
-					<hr className="border-slate-100 my-1" />
+					<hr className="w-full border-slate-100 my-0.5" />
 
 					{/* Mobile Auth Buttons */}
-					<div className="flex flex-col gap-2">
+					<div className="flex flex-col gap-2.5 w-full">
 						{user ? (
 							<Link
 								href="/dashboard"
 								onClick={() => setOpen(false)}
-								className="text-center bg-[#124d46] text-white rounded-2xl py-2.5 text-lg font-medium"
+								className="w-full text-center bg-[#124d46] text-white rounded-xl py-2.5 text-[15px] font-bold shadow-xs active:scale-95 transition-all"
 							>
 								Dashboard
 							</Link>
 						) : (
-							<>
+							<div className="flex items-center gap-2.5 w-full">
 								<Link
 									href="/login"
 									onClick={() => setOpen(false)}
-									className="text-center border border-[#124d46] text-[#124d46] rounded-2xl py-2.5 text-lg font-medium"
+									className="flex-1 text-center border-2 border-[#124d46] text-[#124d46] hover:bg-[#124d46] hover:text-white rounded-xl py-2.5 text-[15px] font-bold transition-all"
 								>
 									Login
 								</Link>
@@ -139,11 +143,11 @@ export default function Navbar() {
 								<Link
 									href="/register"
 									onClick={() => setOpen(false)}
-									className="text-center bg-[#124d46] text-white rounded-2xl py-2.5 text-lg font-medium"
+									className="flex-1 text-center bg-[#124d46] text-white rounded-xl py-2.5 text-[15px] font-bold shadow-xs transition-all"
 								>
 									Register
 								</Link>
-							</>
+							</div>
 						)}
 					</div>
 				</div>

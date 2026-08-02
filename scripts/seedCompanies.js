@@ -27,7 +27,8 @@ const initialCompanies = [
     location: "San Francisco, CA (Hybrid)",
     industry: "Design & Web Development",
     employeeCount: "50-200 employees",
-    description: "PixelCraft Studios is a premiere creative studio building high-performance web interfaces and next-generation digital brand experiences.",
+    description:
+      "PixelCraft Studios is a premier global creative technology studio building high-performance web interfaces, immersive digital products, and next-generation brand experiences.\n\nFounded by product designers and senior engineers, our team partners with ambitious startups and Fortune 500 enterprises to engineer seamless digital products. We specialize in modern React, Next.js, Tailwind CSS, WebGL animations, and design system architecture. We foster an open, innovative culture focused on craftsmanship and continuous growth.",
   },
   {
     name: "CloudPulse Systems",
@@ -37,7 +38,8 @@ const initialCompanies = [
     location: "Austin, TX (On-site)",
     industry: "Software Engineering & Cloud",
     employeeCount: "200-500 employees",
-    description: "CloudPulse Systems engineers resilient microservice architectures, cloud infrastructure automation, and real-time distributed data backend systems.",
+    description:
+      "CloudPulse Systems is an enterprise cloud engineering firm specializing in resilient microservice architectures, automated cloud infrastructure, and real-time distributed data backends.\n\nOur mission is to help high-growth technology companies achieve enterprise-grade scalability, zero downtime, and optimal cloud cost efficiency across AWS, Google Cloud, and Azure. We foster an SRE-driven engineering culture built on continuous deployment, automated testing, and blameless post-mortems.",
   },
   {
     name: "AppNexus",
@@ -47,7 +49,8 @@ const initialCompanies = [
     location: "Remote",
     industry: "Mobile Development",
     employeeCount: "20-50 employees",
-    description: "AppNexus designs and crafts award-winning mobile apps for iOS & Android, leveraging React Native, Flutter, and native Swift/Kotlin stacks.",
+    description:
+      "AppNexus is a mobile-first software studio designing award-winning iOS and Android applications for millions of global users.\n\nWe leverage cutting-edge technologies including React Native, Flutter, Swift, and Kotlin alongside cloud-native backend services. Our cross-functional teams of mobile developers, UI/UX strategists, and QA engineers build frictionless mobile experiences from initial concept to App Store launch.",
   },
   {
     name: "NeuralMind Systems",
@@ -57,7 +60,8 @@ const initialCompanies = [
     location: "Remote",
     industry: "Artificial Intelligence",
     employeeCount: "100-250 employees",
-    description: "NeuralMind Systems specializes in machine learning research, LLM fine-tuning, RAG enterprise search, and predictive AI analytics.",
+    description:
+      "NeuralMind Systems is an artificial intelligence research and engineering company building state-of-the-art machine learning models, LLM fine-tuning pipelines, and intelligent enterprise search engines.\n\nWe empower modern businesses with predictive analytics, natural language processing, and RAG architectures that convert complex data into actionable insights. We are passionate about responsible AI, algorithmic performance, and pushing the boundaries of machine intelligence.",
   },
   {
     name: "NextGen Digital",
@@ -67,7 +71,8 @@ const initialCompanies = [
     location: "Seattle, WA (Hybrid)",
     industry: "Product Management & Strategy",
     employeeCount: "100-300 employees",
-    description: "NextGen Digital partners with global enterprises to drive digital transformation, Agile product roadmaps, and high-impact technology strategies.",
+    description:
+      "NextGen Digital is a strategic digital transformation agency partnering with global enterprise leadership to architect Agile product roadmaps, modernize legacy platforms, and drive tech innovation.\n\nOur multidisciplinary team spans technical product managers, solution architects, and UX researchers. Together, we bridge the gap between strategic vision and execution, delivering measurable business growth for clients across finance, healthcare, and retail.",
   },
   {
     name: "CyberShield Defense",
@@ -77,7 +82,8 @@ const initialCompanies = [
     location: "Remote",
     industry: "Cybersecurity",
     employeeCount: "50-150 employees",
-    description: "CyberShield Defense delivers end-to-end threat intelligence, SIEM monitoring, penetration testing, and zero-trust security architecture.",
+    description:
+      "CyberShield Defense delivers enterprise-grade cybersecurity operations, threat intelligence, continuous SIEM monitoring, and zero-trust security architecture.\n\nIn an evolving digital threat landscape, CyberShield protects critical assets through proactive penetration testing, cloud security hardening, and rapid incident response. Our team of certified security engineers and ethical hackers ensures continuous compliance and data integrity.",
   },
   {
     name: "ScaleWorks",
@@ -87,7 +93,8 @@ const initialCompanies = [
     location: "San Jose, CA (Hybrid)",
     industry: "DevOps & Infrastructure",
     employeeCount: "80-200 employees",
-    description: "ScaleWorks empowers tech companies with automated Kubernetes clusters, Terraform infrastructure-as-code, and 99.99% uptime SRE practices.",
+    description:
+      "ScaleWorks is a DevOps and Site Reliability Engineering Consultancy empowering high-scale technology companies with automated Kubernetes clusters, GitOps pipelines, and Terraform infrastructure-as-code.\n\nWe specialize in high-availability systems, disaster recovery planning, and automated CI/CD workflows. ScaleWorks enables engineering teams to ship code faster, safer, and with 99.99% operational uptime.",
   },
   {
     name: "Vanguard Growth",
@@ -97,7 +104,8 @@ const initialCompanies = [
     location: "Chicago, IL (Hybrid)",
     industry: "Marketing & SEO",
     employeeCount: "30-80 employees",
-    description: "Vanguard Growth is a data-driven digital growth agency executing ROI-focused performance marketing, technical SEO, and CRO campaigns.",
+    description:
+      "Vanguard Growth is a data-driven performance marketing and SEO agency focused on accelerating user acquisition, revenue scaling, and technical SEO dominance.\n\nBy blending deep analytics with creative storytelling and conversion rate optimization (CRO), Vanguard Growth executes high-impact campaigns across digital channels. We partner with tech founders and marketing executives to build sustainable, compound growth engines.",
   },
   {
     name: "TestSphere Solutions",
@@ -107,7 +115,8 @@ const initialCompanies = [
     location: "Denver, CO (Hybrid)",
     industry: "Quality Assurance",
     employeeCount: "40-100 employees",
-    description: "TestSphere Solutions provides continuous automated testing, Playwright & Cypress test suites, and load testing for mission-critical apps.",
+    description:
+      "TestSphere Solutions is a software quality assurance & test automation engineering firm dedicated to ensuring seamless software delivery.\n\nWe engineer robust end-to-end automated test suites using Playwright, Cypress, and Selenium, alongside API load testing and accessibility auditing. TestSphere helps software organizations eliminate bugs early in the release pipeline and achieve rapid release cycles.",
   },
   {
     name: "DataSafe Corp",
@@ -117,7 +126,8 @@ const initialCompanies = [
     location: "Dallas, TX (On-site)",
     industry: "Database & Analytics",
     employeeCount: "150-350 employees",
-    description: "DataSafe Corp specializes in high-speed data warehousing, PostgreSQL/Snowflake query optimization, and enterprise database security.",
+    description:
+      "DataSafe Corp is an enterprise database & big data management company specializing in high-speed data warehousing, PostgreSQL & Snowflake query optimization, and secure data storage.\n\nOur data engineers and database administrators build resilient data pipelines, real-time analytics dashboards, and encrypted backup infrastructures for mission-critical applications.",
   },
   {
     name: "SaaSify Systems",
@@ -127,7 +137,8 @@ const initialCompanies = [
     location: "Boston, MA (Hybrid)",
     industry: "Human Resources & SaaS",
     employeeCount: "75-180 employees",
-    description: "SaaSify Systems provides modern enterprise B2B workflows, customer success platforms, and automated employee onboarding solutions.",
+    description:
+      "SaaSify Systems builds modern enterprise SaaS solutions, customer success platforms, and automated workflow software for growing B2B organizations.\n\nOur cloud platform streamlines employee onboarding, cross-department communication, and customer retention metrics. We are dedicated to intuitive design, rapid feature deployment, and high customer satisfaction.",
   },
   {
     name: "Aura Labs",
@@ -137,7 +148,8 @@ const initialCompanies = [
     location: "Remote",
     industry: "Design & UX Strategy",
     employeeCount: "25-60 employees",
-    description: "Aura Labs crafts delightful digital product designs, high-converting mobile wireframes, motion graphics, and sleek brand identities.",
+    description:
+      "Aura Labs is a digital design agency crafting human-centered UI/UX design systems, interactive prototypes, and modern brand identities.\n\nOur design philosophy combines user research with aesthetic excellence and micro-interactions. We work hand-in-hand with engineering teams to ensure design fidelity and responsive experiences across desktop, tablet, and mobile platforms.",
   },
 ];
 
@@ -149,7 +161,7 @@ async function seedCompanies() {
     const companiesCollection = db.collection("companies");
     const jobsCollection = db.collection("jobs");
 
-    console.log("🏢 Seeding 12 Companies...");
+    console.log("🏢 Seeding / Updating 12 Companies with long descriptions...");
 
     for (const compData of initialCompanies) {
       const existing = await companiesCollection.findOne({ name: compData.name });
@@ -167,7 +179,16 @@ async function seedCompanies() {
         console.log(`✅ Created company: ${compData.name} (_id: ${companyId})`);
       } else {
         companyId = existing._id;
-        console.log(`ℹ️ Company already exists: ${compData.name} (_id: ${companyId})`);
+        await companiesCollection.updateOne(
+          { _id: companyId },
+          {
+            $set: {
+              description: compData.description,
+              updatedAt: new Date(),
+            },
+          }
+        );
+        console.log(`🔄 Updated description for: ${compData.name}`);
       }
 
       // Link jobs matching this company name

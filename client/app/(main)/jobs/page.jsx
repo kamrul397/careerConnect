@@ -7,16 +7,13 @@ import { getSavedJobs } from "@/services/savedJobsService";
 import { getCandidateApplications } from "@/services/applicationService";
 import useCategories from "@/hooks/useCategories";
 import useAuth from "@/hooks/useAuth";
-import { Search, Filter, X, SlidersHorizontal, RotateCcw } from "lucide-react";
+import { Search, Filter, X, SlidersHorizontal, RotateCcw, AlertTriangle } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 function JobsContent() {
   const { dbUser } = useAuth();
-  const [jobs, setJobs] = useState([]);
-  const [savedJobIds, setSavedJobIds] = useState(new Set());
-  const [appliedJobIds, setAppliedJobIds] = useState(new Set());
-  const [loading, setLoading] = useState(true);
   const searchParams = useSearchParams();
 
   const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "");
@@ -41,29 +38,31 @@ function JobsContent() {
     }
   }, [searchParams]);
 
-  useEffect(() => {
-    loadData();
-  }, [dbUser]);
-
-  const loadData = async () => {
-    try {
+  // TanStack Query for Jobs Data, Saved Jobs & Applications
+  const {
+    data: { jobs = [], savedJobIds = new Set(), appliedJobIds = new Set() } = {},
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["jobsData", dbUser?._id, dbUser?.role],
+    queryFn: async () => {
       const isCandidate = dbUser?.role === "candidate";
 
       const [jobsData, savedData, applicationsData] = await Promise.all([
         getApprovedJobs(),
         isCandidate ? getSavedJobs() : Promise.resolve([]),
-        isCandidate ? getCandidateApplications(dbUser.email) : Promise.resolve([]),
+        isCandidate ? getCandidateApplications(dbUser?.email) : Promise.resolve([]),
       ]);
 
-      setJobs(jobsData);
-      setSavedJobIds(new Set(savedData.map((item) => item.jobDetails?._id)));
-      setAppliedJobIds(new Set(applicationsData.map((app) => app.jobId)));
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+      return {
+        jobs: jobsData || [],
+        savedJobIds: new Set(savedData.map((item) => item.jobDetails?._id)),
+        appliedJobIds: new Set(applicationsData.map((app) => app.jobId)),
+      };
+    },
+  });
 
   const filteredJobs = jobs.filter((job) => {
     const matchesCategory = selectedCategory === "All" || job.category === selectedCategory;
@@ -76,25 +75,15 @@ function JobsContent() {
     return matchesCategory && matchesType && matchesSearch;
   });
 
-  const activeFiltersCount = (selectedCategory !== "All" ? 1 : 0) + (selectedType !== "All" ? 1 : 0);
-
   const handleResetFilters = () => {
     setSearchTerm("");
     setSelectedCategory("All");
     setSelectedType("All");
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-[70vh] flex items-center justify-center">
-        <LoadingSpinner />
-      </div>
-    );
-  }
-
   return (
     <div className="pt-20 md:pt-24 pb-12 max-w-7xl mx-auto px-4 sm:px-6 space-y-4">
-      {/* Optimized Top Search Bar Container (No Extra Padding) */}
+      {/* Optimized Top Search Bar Container */}
       <div className="bg-white rounded-2xl p-3 border border-slate-200/90 shadow-xs space-y-2">
         <div className="flex flex-col sm:flex-row items-center gap-3">
           {/* Search Input */}
@@ -141,12 +130,12 @@ function JobsContent() {
             </button>
 
             <span className="text-xs font-semibold text-slate-500 whitespace-nowrap">
-              Showing <strong className="text-[#124d46] font-extrabold">{filteredJobs.length}</strong> jobs
+              Showing <strong className="text-[#124d46] font-extrabold">{isLoading ? "..." : filteredJobs.length}</strong> jobs
             </span>
           </div>
         </div>
 
-        {/* Work Type Filter Drawer (Shows ONLY when Filter Jobs is clicked) */}
+        {/* Work Type Filter Drawer */}
         {isFilterOpen && (
           <div className="pt-3 border-t border-slate-100 space-y-2.5 animate-in fade-in slide-in-from-top-1 duration-200">
             <div className="flex items-center justify-between">
@@ -212,8 +201,8 @@ function JobsContent() {
                 <button
                   key={category.name}
                   onClick={() => setSelectedCategory(category.name)}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-[15px]  transition-all cursor-pointer ${selectedCategory === category.name
-                    ? "bg-teal-50 text-[#124d46] border border-teal-200/80  shadow-2xs"
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-[15px] transition-all cursor-pointer ${selectedCategory === category.name
+                    ? "bg-teal-50 text-[#124d46] border border-teal-200/80 shadow-2xs"
                     : "text-slate-700 hover:bg-slate-50"
                     }`}
                 >
@@ -227,7 +216,57 @@ function JobsContent() {
 
         {/* Jobs Grid Container */}
         <div className="flex-1 w-full">
-          {filteredJobs.length === 0 ? (
+          {isLoading ? (
+            /* Jobs Skeleton Grid */
+            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+              {[1, 2, 3, 4, 5, 6].map((n) => (
+                <div
+                  key={n}
+                  className="rounded-3xl bg-white border-2 border-teal-100 p-6 h-[270px] animate-pulse flex flex-col justify-between"
+                >
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-full bg-slate-100 shrink-0" />
+                        <div className="w-24 h-4 bg-slate-100 rounded-md" />
+                      </div>
+                      <div className="w-5 h-5 rounded-full bg-slate-100" />
+                    </div>
+
+                    <div className="h-6 bg-slate-100 rounded-lg w-3/4 mx-auto" />
+
+                    <div className="flex justify-center gap-2">
+                      <div className="w-16 h-6 bg-slate-100 rounded-xl" />
+                      <div className="w-20 h-6 bg-slate-100 rounded-xl" />
+                      <div className="w-16 h-6 bg-slate-100 rounded-xl" />
+                    </div>
+
+                    <div className="w-28 h-5 bg-slate-100 rounded-md mx-auto" />
+                  </div>
+
+                  <div className="flex justify-between items-center pt-3 border-t border-slate-100">
+                    <div className="w-28 h-8 bg-slate-100 rounded-full" />
+                    <div className="w-24 h-8 bg-slate-100 rounded-full" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : isError ? (
+            /* Error State */
+            <div className="bg-white rounded-2xl border border-slate-200/90 p-10 text-center shadow-xs space-y-3">
+              <AlertTriangle className="w-12 h-12 text-rose-500 mx-auto" />
+              <h3 className="text-lg font-bold text-slate-900">Failed to load jobs</h3>
+              <p className="text-xs text-slate-500 font-medium">
+                {error?.message || "An unexpected error occurred while fetching available jobs."}
+              </p>
+              <button
+                onClick={() => refetch()}
+                className="px-5 py-2 rounded-xl bg-[#124d46] text-white font-bold text-xs hover:bg-[#0a2e2a] transition-all shadow-sm active:scale-95 cursor-pointer"
+              >
+                Try Again
+              </button>
+            </div>
+          ) : filteredJobs.length === 0 ? (
             <div className="bg-white rounded-2xl border border-slate-200/90 p-10 text-center shadow-xs space-y-3">
               <div className="w-12 h-12 rounded-full bg-teal-50 text-[#124d46] flex items-center justify-center mx-auto text-xl font-bold">
                 🔍

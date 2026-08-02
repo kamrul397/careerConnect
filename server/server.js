@@ -9,6 +9,7 @@ import applicationsRoutes from "./routes/applications.routes.js";
 import authRoutes from "./routes/auth.routes.js";
 import savedJobsRoutes from "./routes/savedJobs.routes.js";
 import companiesRoutes from "./routes/companies.routes.js";
+import statsRoutes from "./routes/stats.routes.js";
 
 
 dotenv.config();
@@ -21,12 +22,24 @@ const PORT = process.env.PORT || 5000;
 app.use(express.json());
 app.use(cookieParser());
 
+const allowedOrigins = [
+	"http://localhost:3000",
+	process.env.CLIENT_URL,
+].filter(Boolean);
+
 app.use(
 	cors({
-		origin: "http://localhost:3000",
+		origin: (origin, callback) => {
+			if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== "production") {
+				callback(null, true);
+			} else {
+				callback(null, true);
+			}
+		},
 		credentials: true,
-	}),
+	})
 );
+
 
 const db = await connectDB();
 app.locals.db = db;
@@ -42,6 +55,11 @@ app.use("/api/auth", authRoutes);
 app.use("/api/saved-jobs", savedJobsRoutes);
 
 app.use("/api/companies", companiesRoutes);
+
+app.use("/api/stats", statsRoutes);
+
+
+
 
 
 // // Connect Database

@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import useAuth from "@/hooks/useAuth";
 import { getSavedJobs, removeSavedJob } from "@/services/savedJobsService";
 import { toast } from "sonner";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Bookmark,
   Building2,
@@ -14,45 +14,34 @@ import {
   ArrowRight,
   Trash2,
   Eye,
-  Briefcase
+  Briefcase,
+  AlertCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function SavedJobsTable() {
   const { dbUser } = useAuth();
+  const queryClient = useQueryClient();
 
-  const [savedJobs, setSavedJobs] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (dbUser?.email) {
-      loadSavedJobs();
-    }
-  }, [dbUser]);
-
-  const loadSavedJobs = async () => {
-    try {
-      const data = await getSavedJobs();
-      setSavedJobs(data || []);
-    } catch (error) {
-      console.error("Failed to load saved jobs:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // TanStack Query for saved jobs
+  const {
+    data: savedJobs = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["savedJobs", dbUser?.email],
+    queryFn: () => getSavedJobs(),
+    enabled: !!dbUser?.email,
+  });
 
   const handleRemove = async (jobId) => {
-    const backup = savedJobs.find((item) => item.jobDetails?._id === jobId);
-
-    setSavedJobs((prev) =>
-      prev.filter((item) => item.jobDetails?._id !== jobId)
-    );
-
     try {
       await removeSavedJob(jobId);
       toast.success("Job removed from saved list.");
+      queryClient.invalidateQueries(["savedJobs", dbUser?.email]);
     } catch (error) {
-      setSavedJobs((prev) => [...prev, backup]);
       toast.error("Failed to remove. Please try again.");
     }
   };
@@ -65,11 +54,59 @@ export default function SavedJobsTable() {
     Contract: "bg-yellow-100/80 text-yellow-700 border border-yellow-200/50",
   };
 
-  if (loading) {
+  // Skeleton Loader State
+  if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center py-32 space-y-4">
-        <div className="w-12 h-12 border-4 border-teal-200 border-t-[#124d46] rounded-full animate-spin"></div>
-        <p className="text-slate-500 font-medium">Loading saved jobs...</p>
+      <div className="space-y-8 animate-pulse">
+        {/* Header Banner Skeleton */}
+        <div className="bg-gradient-to-r from-teal-900/40 to-emerald-800/40 rounded-3xl p-8 h-36 flex items-center justify-between">
+          <div className="space-y-3">
+            <div className="w-48 h-8 bg-slate-200/60 rounded-xl" />
+            <div className="w-72 h-4 bg-slate-200/40 rounded-md" />
+          </div>
+          <div className="w-32 h-12 bg-slate-200/50 rounded-2xl" />
+        </div>
+
+        {/* Saved Jobs List Skeleton */}
+        <div className="space-y-3.5">
+          {[1, 2, 3, 4].map((n) => (
+            <div
+              key={n}
+              className="bg-white rounded-2xl border-2 border-slate-100 p-5 flex flex-col md:flex-row md:items-center justify-between gap-4"
+            >
+              <div className="space-y-3 flex-1">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-slate-100 shrink-0" />
+                  <div className="w-48 h-6 bg-slate-100 rounded-lg" />
+                  <div className="w-20 h-5 bg-slate-100 rounded-full" />
+                </div>
+                <div className="flex gap-4 pt-1">
+                  <div className="w-28 h-4 bg-slate-100 rounded" />
+                  <div className="w-24 h-4 bg-slate-100 rounded" />
+                  <div className="w-20 h-4 bg-slate-100 rounded" />
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <div className="w-28 h-9 bg-slate-100 rounded-lg" />
+                <div className="w-9 h-9 bg-slate-100 rounded-lg" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Error State
+  if (isError) {
+    return (
+      <div className="bg-white rounded-2xl border border-slate-100 p-12 text-center flex flex-col items-center justify-center space-y-4">
+        <AlertCircle className="w-12 h-12 text-rose-500" />
+        <h3 className="text-xl font-bold text-slate-800">Failed to load saved jobs</h3>
+        <p className="text-slate-500 text-xs">{error?.message || "An error occurred."}</p>
+        <Button onClick={() => refetch()} className="bg-[#124d46] text-white">
+          Try Again
+        </Button>
       </div>
     );
   }
@@ -119,14 +156,19 @@ export default function SavedJobsTable() {
         </div>
       ) : (
         <div className="space-y-3.5">
-          {savedJobs.map((item) => (
+          {savedJobs.map((item, index) => (
             <div
               key={item._id}
               className="bg-white rounded-2xl border-2 border-slate-100 hover:border-teal-200 shadow-xs hover:shadow-md transition-all duration-200 p-5 group flex flex-col md:flex-row md:items-center justify-between gap-4"
             >
-              {/* Left Column: Job Info */}
+              {/* Left Column: Job Info & Index */}
               <div className="space-y-2 flex-1 min-w-0">
                 <div className="flex flex-wrap items-center gap-3">
+                  {/* Index Badge */}
+                  <span className="w-8 h-8 rounded-xl bg-teal-50 text-[#124d46] text-xs font-extrabold flex items-center justify-center border border-teal-200/80 shrink-0 shadow-2xs">
+                    #{index + 1}
+                  </span>
+
                   <Link
                     href={`/jobs/${item.jobDetails?._id}`}
                     className="font-semibold text-slate-800 group-hover:text-[#124d46] transition-colors text-base"
@@ -144,7 +186,7 @@ export default function SavedJobsTable() {
                   )}
                 </div>
 
-                <div className="flex flex-wrap items-center gap-y-2 gap-x-5 text-slate-500 text-sm">
+                <div className="flex flex-wrap items-center gap-y-2 gap-x-5 text-slate-500 text-sm pl-11">
                   <span className="flex items-center gap-2 text-slate-700 font-medium">
                     <Building2 className="w-4 h-4 text-slate-400 shrink-0" />
                     {item.jobDetails?.company || "Company Confidential"}

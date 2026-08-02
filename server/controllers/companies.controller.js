@@ -25,8 +25,9 @@ export const createCompany = async (req, res) => {
 
     const newCompany = {
       name: name.trim(),
-      logo: logo || "https://images.unsplash.com/photo-1549923746-c502d488b3ea?q=80&w=300&auto=format&fit=crop",
-      banner: banner || "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop",
+      logo: logo || "",
+      banner: banner || "",
+      bannerImage: banner || "",
       website: website || "",
       location: location || "Remote",
       industry: industry || "Technology",
@@ -84,14 +85,14 @@ export const getAllCompanies = async (req, res) => {
       .sort({ createdAt: -1 })
       .toArray();
 
-    // Attach active job count to each company
+    // Safely attach active job count to each company
     const companiesWithJobsCount = await Promise.all(
       companies.map(async (company) => {
         const jobCount = await db.collection("jobs").countDocuments({
           $or: [
             { companyId: company._id.toString() },
             { companyId: company._id },
-            { company: { $regex: `^${company.name}$`, $options: "i" } },
+            { company: company.name },
           ],
           status: "approved",
         });
@@ -137,14 +138,14 @@ export const getCompanyById = async (req, res) => {
       });
     }
 
-    // Fetch jobs belonging to this company
+    // Safely fetch jobs belonging to this company
     const jobs = await db
       .collection("jobs")
       .find({
         $or: [
           { companyId: company._id.toString() },
           { companyId: company._id },
-          { company: { $regex: `^${company.name}$`, $options: "i" } },
+          { company: company.name },
         ],
         status: "approved",
       })
@@ -198,7 +199,10 @@ export const updateCompany = async (req, res) => {
 
     if (name !== undefined) updateFields.name = name.trim();
     if (logo !== undefined) updateFields.logo = logo;
-    if (banner !== undefined) updateFields.banner = banner;
+    if (banner !== undefined) {
+      updateFields.banner = banner;
+      updateFields.bannerImage = banner;
+    }
     if (website !== undefined) updateFields.website = website;
     if (location !== undefined) updateFields.location = location;
     if (industry !== undefined) updateFields.industry = industry;

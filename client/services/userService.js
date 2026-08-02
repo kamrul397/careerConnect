@@ -27,3 +27,9 @@ export const deleteUser = async (userId) => {
 	const { data } = await axiosInstance.delete(`/api/users/${userId}`);
 	return data;
 };
+
+// 3. Get candidates count (Public)
+export const getCandidatesCount = async () => {
+	const { data } = await axiosInstance.get("/api/users/candidates/count");
+	return data.count;
+};
