@@ -14,6 +14,7 @@ import {
   Menu,
   X,
   Sparkles,
+  Building2,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -43,12 +44,18 @@ export default function DashboardSidebar({ role }) {
         icon: FileClock,
       },
       {
+        name: "Companies",
+        href: "/dashboard/admin/companies",
+        icon: Building2,
+      },
+      {
         name: "Manage Users",
         href: "/dashboard/admin/users",
         icon: Users,
       },
     ];
   }
+
 
   if (role === "recruiter") {
     links = [

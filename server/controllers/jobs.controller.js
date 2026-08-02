@@ -220,10 +220,32 @@ export const updateJobStatus = async (req, res) => {
 export const getApprovedJobs = async (req, res) => {
   try {
     const db = req.app.locals.db;
+    const { category, type, search } = req.query;
+
+    const filterQuery = { status: "approved" };
+
+    if (category && category !== "All") {
+      filterQuery.category = category;
+    }
+
+    if (type && type !== "All") {
+      filterQuery.type = { $regex: type, $options: "i" };
+    }
+
+    if (search) {
+      const searchRegex = { $regex: search, $options: "i" };
+      filterQuery.$or = [
+        { title: searchRegex },
+        { company: searchRegex },
+        { location: searchRegex },
+        { category: searchRegex },
+        { type: searchRegex },
+      ];
+    }
 
     const jobs = await db
       .collection("jobs")
-      .find({ status: "approved" })
+      .find(filterQuery)
       .sort({ createdAt: -1 })
       .toArray();
 

@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getPendingJobs, getApprovedJobs } from "@/services/jobService";
 import { getAllUsers } from "@/services/userService";
-
+import { getAllCompanies } from "@/services/companyService";
 
 export default function DashboardHeader() {
 
@@ -14,6 +14,7 @@ export default function DashboardHeader() {
 	const [stats, setStats] = useState({
 		pendingJobs: 0,
 		approvedJobs: 0,
+		companies: 0,
 		recruiters: 0,
 		candidates: 0,
 	});
@@ -22,15 +23,16 @@ export default function DashboardHeader() {
 	useEffect(() => {
 		const fetchDashboardData = async () => {
 			try {
-				const [pending, approved, users] = await Promise.all([
+				const [pending, approved, users, companiesList] = await Promise.all([
 					getPendingJobs(),
 					getApprovedJobs(),
-					getAllUsers()
+					getAllUsers(),
+					getAllCompanies()
 				]);
 
-				// Adjust the `.length` depending on whether your API returns the array directly or inside an object (e.g., pending.jobs.length)
 				const pendingCount = pending?.length || pending?.jobs?.length || 0;
 				const approvedCount = approved?.length || approved?.jobs?.length || 0;
+				const companiesCount = companiesList?.length || 0;
 
 				const recruitersCount = users?.filter(u => u.role === 'recruiter').length || 0;
 				const candidatesCount = users?.filter(u => u.role === 'candidate' || u.role === 'user').length || 0;
@@ -38,6 +40,7 @@ export default function DashboardHeader() {
 				setStats({
 					pendingJobs: pendingCount,
 					approvedJobs: approvedCount,
+					companies: companiesCount,
 					recruiters: recruitersCount,
 					candidates: candidatesCount
 				});
@@ -61,13 +64,13 @@ export default function DashboardHeader() {
 						Admin Dashboard 👑
 					</h1>
 					<p className="text-teal-50 mt-2 md:mt-3 text-lg max-w-xl leading-relaxed opacity-90">
-						Manage users, recruiters, and approve new job postings.
+						Manage users, recruiters, companies, and approve new job postings.
 					</p>
 				</div>
 			</div>
 
 			{/* Stats Grid */}
-			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 flex-shrink-0">
+			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 lg:gap-6 flex-shrink-0">
 				<div className="bg-white border border-slate-100 rounded-xl p-6 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 group">
 					<div className="flex items-center justify-between">
 						<h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider group-hover:text-amber-600 transition-colors">
@@ -87,6 +90,17 @@ export default function DashboardHeader() {
 					</div>
 					<p className="text-4xl font-extrabold mt-4 text-slate-800">
 						{loading ? <span className="animate-pulse text-slate-300">...</span> : stats.approvedJobs}
+					</p>
+				</div>
+
+				<div className="bg-white border border-slate-100 rounded-xl p-6 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 group">
+					<div className="flex items-center justify-between">
+						<h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider group-hover:text-teal-600 transition-colors">
+							<Link href="/dashboard/admin/companies" className="hover:underline">Companies</Link>
+						</h3>
+					</div>
+					<p className="text-4xl font-extrabold mt-4 text-slate-800">
+						{loading ? <span className="animate-pulse text-slate-300">...</span> : stats.companies}
 					</p>
 				</div>
 
@@ -124,6 +138,12 @@ export default function DashboardHeader() {
 					</Button>
 
 					<Button asChild variant="outline" className="px-6 py-6 rounded-xl border-slate-200 text-slate-600 hover:text-[#124d46] hover:bg-teal-50 hover:border-teal-200 transition-all font-medium text-base">
+						<Link href="/dashboard/admin/companies">
+							Manage Companies
+						</Link>
+					</Button>
+
+					<Button asChild variant="outline" className="px-6 py-6 rounded-xl border-slate-200 text-slate-600 hover:text-[#124d46] hover:bg-teal-50 hover:border-teal-200 transition-all font-medium text-base">
 						<Link href="/dashboard/admin/users">
 							Manage Users
 						</Link>
@@ -138,4 +158,4 @@ export default function DashboardHeader() {
 			</div>
 		</div>
 	);
-}
+}
