@@ -26,10 +26,12 @@ router.post("/jwt", async (req, res) => {
 			expiresIn: "7d",
 		});
 
+		const isProduction = process.env.NODE_ENV === "production";
+
 		res.cookie("token", token, {
 			httpOnly: true,
-			secure: false, // true in production
-			sameSite: "lax",
+			secure: isProduction,
+			sameSite: isProduction ? "none" : "lax",
 		});
 
 		res.send({ success: true });
@@ -47,10 +49,12 @@ router.get("/private", verifyToken, (req, res) => {
 });
 
 router.post("/logout", (req, res) => {
+	const isProduction = process.env.NODE_ENV === "production";
+
 	res.clearCookie("token", {
 		httpOnly: true,
-		secure: false,
-		sameSite: "lax",
+		secure: isProduction,
+		sameSite: isProduction ? "none" : "lax",
 	});
 
 	res.send({

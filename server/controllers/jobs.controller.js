@@ -19,6 +19,7 @@ export const createJob = async (req, res) => {
 
     const newJob = {
       title,
+      category,
       company,
       location,
       salary,

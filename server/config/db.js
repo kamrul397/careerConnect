@@ -21,6 +21,7 @@ export async function connectDB() {
 
     return client.db("careerConnectDB");
   } catch (error) {
-
+    console.error("MongoDB connection failed:", error);
+    throw error;
   }
 }
