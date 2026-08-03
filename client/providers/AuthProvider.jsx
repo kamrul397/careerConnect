@@ -52,7 +52,7 @@ export default function AuthProvider({ children }) {
 			if (currentUser) {
 				setLoading(true);
 				setUser(currentUser);
-				console.log(currentUser);
+				// console.log(currentUser);
 				try {
 					// Create HTTP-only cookie
 					await getJwt({
