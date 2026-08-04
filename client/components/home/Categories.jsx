@@ -19,7 +19,7 @@ import {
 
 // Helper to map category names to icons dynamically
 const getCategoryIcon = (categoryName) => {
-  const name = categoryName.toLowerCase();
+  const name = (categoryName || "").toLowerCase();
   if (name.includes("software") || name.includes("it") || name.includes("developer")) return <Code className="w-6 h-6" />;
   if (name.includes("design") || name.includes("art")) return <PenTool className="w-6 h-6" />;
   if (name.includes("marketing") || name.includes("seo")) return <Megaphone className="w-6 h-6" />;
@@ -44,6 +44,8 @@ export default function Categories() {
       </div>
     );
   }
+
+  const validCategories = (categories || []).filter((c) => c && c.name);
 
   return (
     <section className="py-8 md:py-10 bg-transparent relative overflow-hidden">
@@ -72,7 +74,7 @@ export default function Categories() {
 
         {/* Compact Grid with Larger Text & Icons */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4">
-          {categories.map((category) => (
+          {validCategories.map((category) => (
             <Link
               key={category.name}
               href={`/jobs?category=${encodeURIComponent(category.name)}`}
