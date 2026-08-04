@@ -1,8 +1,8 @@
 const verifyRecruiter = (req, res, next) => {
-    // 1. Read role directly from req.decoded (no DB query!)
-    if (req.decoded?.role !== "recruiter") {
+    // 1. Read role directly from req.decoded (permits recruiter and admin)
+    if (req.decoded?.role !== "recruiter" && req.decoded?.role !== "admin") {
         return res.status(403).send({
-            message: "Forbidden access. Recruiter role required."
+            message: "Forbidden access. Recruiter or Admin role required."
         });
     }
 

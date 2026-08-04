@@ -9,6 +9,7 @@ import {
 	getRecruiterJobs,
 	updateJob,
 	updateJobStatus,
+	getAllJobsAdmin,
 } from "../controllers/jobs.controller.js";
 import verifyToken from "../middleware/verifyToken.js";
 import verifyRecruiter from "../middleware/verifyRecruiter.js";
@@ -20,6 +21,7 @@ const router = express.Router();
 router.post("/", verifyToken, verifyRecruiter, createJob);
 router.get("/recruiter", verifyToken, verifyRecruiter, getRecruiterJobs);
 router.get("/pending", verifyToken, verifyAdmin, getPendingJobs);
+router.get("/all", verifyToken, verifyAdmin, getAllJobsAdmin);
 router.get("/categories", getJobCategories); // ✅ Categories before dynamic /:id
 router.get("/", getApprovedJobs);
 

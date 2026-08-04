@@ -61,13 +61,16 @@ export default function JobDetailsPage() {
   const { data: savedJobsData = [] } = useQuery({
     queryKey: ["savedJobs", dbUser?.email],
     queryFn: getSavedJobs,
-    enabled: !!job?._id && dbUser?.role === "candidate",
+    enabled: !!job?._id && !!dbUser?.email && dbUser?.role === "candidate",
     staleTime: 1000 * 60 * 5,
   });
 
-  const isSaved = savedJobsData.some(
-    (item) => item.jobDetails?._id === job?._id
-  );
+  const isSaved = savedJobsData.some((item) => {
+    const savedId = String(item.jobDetails?._id || item.jobId || "");
+    const currentId = String(job?._id || "");
+    return savedId === currentId && savedId !== "";
+  });
+
 
 
   const handleApply = async () => {

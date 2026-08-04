@@ -20,9 +20,11 @@ function JobsContent() {
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get("category") || "All");
   const [selectedType, setSelectedType] = useState("All");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const { categories } = useCategories();
+
+
 
   useEffect(() => {
     const category = searchParams.get("category");
@@ -65,8 +67,11 @@ function JobsContent() {
   });
 
   const filteredJobs = jobs.filter((job) => {
+    const normalize = (str) => str?.toLowerCase().replace(/[\s-]/g, "") || "";
     const matchesCategory = selectedCategory === "All" || job.category === selectedCategory;
-    const matchesType = selectedType === "All" || job.type?.toLowerCase().includes(selectedType.toLowerCase());
+    const matchesType =
+      selectedType === "All" ||
+      normalize(job.type).includes(normalize(selectedType));
     const matchesSearch =
       job.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       job.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -74,6 +79,7 @@ function JobsContent() {
 
     return matchesCategory && matchesType && matchesSearch;
   });
+
 
   const handleResetFilters = () => {
     setSearchTerm("");
@@ -123,10 +129,18 @@ function JobsContent() {
 
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="px-3 py-2 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 text-xs font-bold cursor-pointer hidden lg:inline-flex items-center gap-1.5"
+              className={`px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer inline-flex items-center gap-1.5 border ${isSidebarOpen || selectedCategory !== "All"
+                ? "bg-teal-50 text-[#124d46] border-teal-200 shadow-2xs"
+                : "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200"
+                }`}
             >
-              <Filter className="w-3.5 h-3.5" />
-              <span>{isSidebarOpen ? "Hide Sidebar" : "Show Sidebar"}</span>
+              <Filter className="w-3.5 h-3.5 text-[#124d46]" />
+              <span>{isSidebarOpen ? "Hide Categories" : "Show Categories"}</span>
+              {selectedCategory !== "All" && (
+                <span className="px-2 py-0.5 rounded-full bg-[#124d46] text-white text-[10px] font-extrabold max-w-[100px] truncate">
+                  {selectedCategory}
+                </span>
+              )}
             </button>
 
             <span className="text-xs font-semibold text-slate-500 whitespace-nowrap">
@@ -144,26 +158,42 @@ function JobsContent() {
               </span>
               <button
                 onClick={handleResetFilters}
-                className="text-xs font-bold text-slate-500 hover:text-rose-600 flex items-center gap-1 transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 hover:bg-rose-100/90 text-rose-700 hover:text-rose-800 border border-rose-200/90 text-xs font-bold transition-all duration-200 shadow-2xs hover:shadow-xs active:scale-95 cursor-pointer group"
+                title="Reset all search & filter parameters"
               >
-                <RotateCcw className="w-3 h-3" />
-                Reset
+                <RotateCcw className="w-3.5 h-3.5 text-rose-600 transition-transform duration-500 group-hover:-rotate-180" />
+                <span>Reset Filters</span>
               </button>
             </div>
 
-            <div className="flex flex-wrap items-center gap-1.5">
-              {["All", "Full-time", "Part-time", "Remote", "Hybrid", "Contract"].map((type) => (
-                <button
-                  key={type}
-                  onClick={() => setSelectedType(type)}
-                  className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer border ${selectedType === type
-                    ? "bg-[#124d46] text-white border-[#124d46] shadow-xs"
-                    : "bg-slate-100 text-slate-600 border-slate-200 hover:bg-teal-50 hover:text-[#124d46]"
-                    }`}
-                >
-                  {type}
-                </button>
-              ))}
+            <div className="flex flex-wrap items-center gap-2">
+              {["All", "Full-time", "Part-time", "Remote", "Hybrid", "Contract"].map((type) => {
+                const normalize = (str) => str?.toLowerCase().replace(/[\s-]/g, "") || "";
+                const count = type === "All"
+                  ? jobs.length
+                  : jobs.filter((job) => normalize(job.type).includes(normalize(type))).length;
+
+                return (
+                  <button
+                    key={type}
+                    onClick={() => setSelectedType(type)}
+                    className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer border flex items-center gap-1.5 ${selectedType === type
+                      ? "bg-[#124d46] text-white border-[#124d46] shadow-xs"
+                      : "bg-slate-100 text-slate-600 border-slate-200 hover:bg-teal-50 hover:text-[#124d46]"
+                      }`}
+                  >
+                    <span>{type}</span>
+                    <span
+                      className={`px-1.5 py-0.5 text-[10px] font-extrabold rounded-full ${selectedType === type
+                        ? "bg-teal-300 text-[#124d46]"
+                        : "bg-slate-200 text-slate-600"
+                        }`}
+                    >
+                      {count}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}
@@ -187,7 +217,12 @@ function JobsContent() {
             {/* Left Side Full Category Names */}
             <div className="space-y-1">
               <button
-                onClick={() => setSelectedCategory("All")}
+                onClick={() => {
+                  setSelectedCategory("All");
+                  if (typeof window !== "undefined" && window.innerWidth < 1024) {
+                    setIsSidebarOpen(false);
+                  }
+                }}
                 className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-md font-bold transition-all cursor-pointer ${selectedCategory === "All"
                   ? "bg-teal-50 text-[#124d46] border border-teal-200/80 font-extrabold shadow-2xs"
                   : "text-slate-700 hover:bg-slate-50"
@@ -200,7 +235,12 @@ function JobsContent() {
               {categories.map((category) => (
                 <button
                   key={category.name}
-                  onClick={() => setSelectedCategory(category.name)}
+                  onClick={() => {
+                    setSelectedCategory(category.name);
+                    if (typeof window !== "undefined" && window.innerWidth < 1024) {
+                      setIsSidebarOpen(false);
+                    }
+                  }}
                   className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-[15px] transition-all cursor-pointer ${selectedCategory === category.name
                     ? "bg-teal-50 text-[#124d46] border border-teal-200/80 shadow-2xs"
                     : "text-slate-700 hover:bg-slate-50"

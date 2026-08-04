@@ -39,6 +39,11 @@ export default function DashboardSidebar({ role }) {
         icon: LayoutDashboard,
       },
       {
+        name: "Manage Jobs",
+        href: "/dashboard/admin/jobs",
+        icon: BriefcaseBusiness,
+      },
+      {
         name: "Pending Jobs",
         href: "/dashboard/admin/pending-jobs",
         icon: FileClock,

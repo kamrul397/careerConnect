@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { saveJob, removeSavedJob } from "@/services/savedJobsService";
 import { toast } from "sonner";
@@ -22,6 +23,7 @@ export default function JobCard({ job, initialSaved = false, initialApplied = fa
   const [isApplied, setIsApplied] = useState(initialApplied);
   const { dbUser } = useAuth();
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     setIsSaved(initialSaved);
@@ -49,6 +51,7 @@ export default function JobCard({ job, initialSaved = false, initialApplied = fa
       try {
         await removeSavedJob(jobId);
         toast.success("Job removed from saved!");
+        queryClient.invalidateQueries({ queryKey: ["savedJobs"] });
       } catch (error) {
         setIsSaved(true);
         toast.error("Failed to remove saved job.");
@@ -58,6 +61,7 @@ export default function JobCard({ job, initialSaved = false, initialApplied = fa
       try {
         await saveJob(jobId);
         toast.success("Job saved!");
+        queryClient.invalidateQueries({ queryKey: ["savedJobs"] });
       } catch (error) {
         setIsSaved(false);
         toast.error(error.response?.data?.message || "Failed to save.");

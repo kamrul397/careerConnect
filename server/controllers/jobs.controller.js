@@ -331,3 +331,23 @@ export const getJobCategories = async (req, res) => {
     });
   }
 };
+
+// get all jobs for admin (all statuses: approved, pending, rejected)
+export const getAllJobsAdmin = async (req, res) => {
+  try {
+    const db = req.app.locals.db;
+
+    const jobs = await db
+      .collection("jobs")
+      .find({})
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    res.send(jobs);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({
+      message: "Failed to fetch all jobs for admin",
+    });
+  }
+};
