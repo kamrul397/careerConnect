@@ -1,41 +1,33 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import useAuth from "@/hooks/useAuth";
 import { getCandidateApplications, withdrawApplication } from "@/services/applicationService";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Briefcase, Building2, Calendar, FileText } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export default function CandidateApplicationsTable() {
   const { dbUser } = useAuth();
-  const [applications, setApplications] = useState([]);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    if (dbUser?.email) {
-      loadApplications();
-    }
-  }, [dbUser]);
-
-  const loadApplications = async () => {
-    const data = await getCandidateApplications(dbUser.email);
-    setApplications(data || []);
-  };
+  const { data: applications = [], isLoading: loading } = useQuery({
+    queryKey: ["candidateApplications", dbUser?.email],
+    queryFn: () => getCandidateApplications(dbUser.email),
+    enabled: !!dbUser?.email,
+    staleTime: 1000 * 60 * 3,
+  });
 
   const handleWithdraw = async (id) => {
-    const previousApplications = [...applications];
-    setApplications((prev) =>
-      prev.map((app) => (app._id === id ? { ...app, status: "withdrawn" } : app))
-    );
-
     try {
       await withdrawApplication(id);
       toast.success("Application withdrawn.");
+      queryClient.invalidateQueries({ queryKey: ["candidateApplications"] });
     } catch (error) {
-      setApplications(previousApplications);
       toast.error(error.response?.data?.message || "Failed to withdraw application.");
     }
   };
+
 
   const badgeColor = {
     pending: "bg-amber-100/80 text-amber-700 border border-amber-200/50",

@@ -1,32 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { getJobCategories } from "@/services/jobService";
 
 export default function useCategories() {
-    const [categories, setCategories] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+  const {
+    data: categories = [],
+    isLoading: loading,
+    error,
+  } = useQuery({
+    queryKey: ["jobCategories"],
+    queryFn: getJobCategories,
+    staleTime: 1000 * 60 * 10, // 10 minutes cache
+  });
 
-    useEffect(() => {
-        const loadCategories = async () => {
-            try {
-                const data = await getJobCategories();
-                setCategories(data);
-            } catch (err) {
-                console.error(err);
-                setError(err);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        loadCategories();
-    }, []);
-
-    return {
-        categories,
-        loading,
-        error,
-    };
-}
+  return {
+    categories,
+    loading,
+    error,
+  };
+}

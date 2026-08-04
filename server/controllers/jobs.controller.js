@@ -265,7 +265,7 @@ export const getApproveJobById = async (req, res) => {
 
     const { id } = req.params;
 
-    console.log("id =", id);
+    // console.log("id =", id);
 
     const job = await db.collection("jobs").findOne({
       _id: new ObjectId(id),

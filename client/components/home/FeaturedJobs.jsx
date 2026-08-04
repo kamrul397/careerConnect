@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import JobsGrid from "@/components/jobs/JobsGrid";
 import { getApprovedJobs } from "@/services/jobService";
@@ -9,38 +8,42 @@ import { getCandidateApplications } from "@/services/applicationService";
 import useAuth from "@/hooks/useAuth";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
 import { ArrowRight } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 export default function FeaturedJobs() {
   const { dbUser } = useAuth();
-  const [jobs, setJobs] = useState([]);
-  const [savedJobIds, setSavedJobIds] = useState(new Set());
-  const [appliedJobIds, setAppliedJobIds] = useState(new Set());
-  const [loading, setLoading] = useState(true);
+  const isCandidate = dbUser?.role === "candidate";
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const isCandidate = dbUser?.role === "candidate";
+  // 1. Fetch Approved Jobs with 5 min cache
+  const { data: jobsData = [], isLoading: jobsLoading } = useQuery({
+    queryKey: ["approvedJobs"],
+    queryFn: getApprovedJobs,
+    staleTime: 1000 * 60 * 5,
+  });
 
-        const [jobsData, savedData, applicationsData] = await Promise.all([
-          getApprovedJobs(),
-          isCandidate ? getSavedJobs() : Promise.resolve([]),
-          isCandidate ? getCandidateApplications(dbUser.email) : Promise.resolve([]),
-        ]);
+  // 2. Fetch Saved Jobs for candidate
+  const { data: savedData = [], isLoading: savedLoading } = useQuery({
+    queryKey: ["savedJobs", dbUser?.email],
+    queryFn: getSavedJobs,
+    enabled: !!isCandidate,
+    staleTime: 1000 * 60 * 5,
+  });
 
-        // Limit to 6 jobs for the featured section
-        setJobs(jobsData.slice(0, 6));
-        setSavedJobIds(new Set(savedData.map((item) => item.jobDetails?._id)));
-        setAppliedJobIds(new Set(applicationsData.map((app) => app.jobId)));
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // 3. Fetch Applications for candidate
+  const { data: applicationsData = [], isLoading: appsLoading } = useQuery({
+    queryKey: ["candidateApplications", dbUser?.email],
+    queryFn: () => getCandidateApplications(dbUser.email),
+    enabled: !!isCandidate && !!dbUser?.email,
+    staleTime: 1000 * 60 * 5,
+  });
 
-    loadData();
-  }, [dbUser]);
+  const loading = jobsLoading || (isCandidate && (savedLoading || appsLoading));
+
+  // Process data for presentation
+  const jobs = jobsData.slice(0, 6);
+  const savedJobIds = new Set(savedData.map((item) => item.jobDetails?._id));
+  const appliedJobIds = new Set(applicationsData.map((app) => app.jobId));
+
 
   return (
     <section className="relative py-8 md:py-10 bg-transparent overflow-hidden">

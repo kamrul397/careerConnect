@@ -3,39 +3,36 @@
 import Link from "next/link";
 import { Button } from "../ui/button";
 import useAuth from "@/hooks/useAuth";
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { getCandidateApplications } from "@/services/applicationService";
 import { getSavedJobs } from "@/services/savedJobsService";
 import { Briefcase, Bookmark, Calendar, ArrowRight, UserCircle } from "lucide-react";
 
+
 export default function CandidateDashboard() {
   const { dbUser } = useAuth();
-  const [applications, setApplications] = useState([]);
-  const [savedCount, setSavedCount] = useState(0);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      if (dbUser?.email) {
-        try {
-          const [appData, savedData] = await Promise.all([
-            getCandidateApplications(dbUser.email),
-            getSavedJobs(),
-          ]);
-          setApplications(appData);
-          setSavedCount(savedData.length);
-        } catch (error) {
-          console.error("Error fetching stats:", error);
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
-    fetchStats();
-  }, [dbUser]);
+  // 1. Fetch applications
+  const { data: applications = [], isLoading: appsLoading } = useQuery({
+    queryKey: ["candidateApplications", dbUser?.email],
+    queryFn: () => getCandidateApplications(dbUser.email),
+    enabled: !!dbUser?.email,
+    staleTime: 1000 * 60 * 3,
+  });
 
+  // 2. Fetch saved jobs count
+  const { data: savedJobs = [], isLoading: savedLoading } = useQuery({
+    queryKey: ["savedJobs", dbUser?.email],
+    queryFn: getSavedJobs,
+    enabled: !!dbUser?.email,
+    staleTime: 1000 * 60 * 3,
+  });
+
+  const loading = appsLoading || savedLoading;
   const appliedCount = applications.length;
+  const savedCount = savedJobs.length;
   const interviewCount = applications.filter(app => app.status === "interview").length;
+
 
   return (
     <div className="flex flex-col gap-4 lg:gap-6 animate-in fade-in duration-500">

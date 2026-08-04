@@ -3,6 +3,7 @@
 import Link from "next/link";
 import useAuth from "@/hooks/useAuth";
 import { getSavedJobs, removeSavedJob } from "@/services/savedJobsService";
+import { getCandidateApplications } from "@/services/applicationService";
 import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -16,6 +17,7 @@ import {
   Eye,
   Briefcase,
   AlertCircle,
+  CheckCircle2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -23,10 +25,10 @@ export default function SavedJobsTable() {
   const { dbUser } = useAuth();
   const queryClient = useQueryClient();
 
-  // TanStack Query for saved jobs
+  // 1. TanStack Query for saved jobs
   const {
     data: savedJobs = [],
-    isLoading,
+    isLoading: savedLoading,
     isError,
     error,
     refetch,
@@ -34,13 +36,25 @@ export default function SavedJobsTable() {
     queryKey: ["savedJobs", dbUser?.email],
     queryFn: () => getSavedJobs(),
     enabled: !!dbUser?.email,
+    staleTime: 1000 * 60 * 3,
   });
+
+  // 2. TanStack Query for candidate applications to check applied status
+  const { data: applications = [], isLoading: appsLoading } = useQuery({
+    queryKey: ["candidateApplications", dbUser?.email],
+    queryFn: () => getCandidateApplications(dbUser.email),
+    enabled: !!dbUser?.email,
+    staleTime: 1000 * 60 * 3,
+  });
+
+  const isLoading = savedLoading || appsLoading;
+  const appliedJobIds = new Set(applications.map((app) => app.jobId));
 
   const handleRemove = async (jobId) => {
     try {
       await removeSavedJob(jobId);
       toast.success("Job removed from saved list.");
-      queryClient.invalidateQueries(["savedJobs", dbUser?.email]);
+      queryClient.invalidateQueries({ queryKey: ["savedJobs", dbUser?.email] });
     } catch (error) {
       toast.error("Failed to remove. Please try again.");
     }
@@ -156,35 +170,47 @@ export default function SavedJobsTable() {
         </div>
       ) : (
         <div className="space-y-3.5">
-          {savedJobs.map((item, index) => (
-            <div
-              key={item._id}
-              className="bg-white rounded-2xl border-2 border-slate-100 hover:border-teal-200 shadow-xs hover:shadow-md transition-all duration-200 p-5 group flex flex-col md:flex-row md:items-center justify-between gap-4"
-            >
-              {/* Left Column: Job Info & Index */}
-              <div className="space-y-2 flex-1 min-w-0">
-                <div className="flex flex-wrap items-center gap-3">
-                  {/* Index Badge */}
-                  <span className="w-8 h-8 rounded-xl bg-teal-50 text-[#124d46] text-xs font-extrabold flex items-center justify-center border border-teal-200/80 shrink-0 shadow-2xs">
-                    #{index + 1}
-                  </span>
+          {savedJobs.map((item, index) => {
+            const isApplied = appliedJobIds.has(item.jobDetails?._id);
 
-                  <Link
-                    href={`/jobs/${item.jobDetails?._id}`}
-                    className="font-semibold text-slate-800 group-hover:text-[#124d46] transition-colors text-base"
-                  >
-                    {item.jobDetails?.title || "Untitled Position"}
-                  </Link>
-
-                  {item.jobDetails?.type && (
-                    <span
-                      className={`inline-flex items-center justify-center px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider rounded-full ${jobTypeBadge[item.jobDetails?.type] ?? "bg-slate-100 text-slate-700"
-                        }`}
-                    >
-                      {item.jobDetails?.type}
+            return (
+              <div
+                key={item._id}
+                className="bg-white rounded-2xl border-2 border-slate-100 hover:border-teal-200 shadow-xs hover:shadow-md transition-all duration-200 p-5 group flex flex-col md:flex-row md:items-center justify-between gap-4"
+              >
+                {/* Left Column: Job Info & Index */}
+                <div className="space-y-2 flex-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-3">
+                    {/* Index Badge */}
+                    <span className="w-8 h-8 rounded-xl bg-teal-50 text-[#124d46] text-xs font-extrabold flex items-center justify-center border border-teal-200/80 shrink-0 shadow-2xs">
+                      #{index + 1}
                     </span>
-                  )}
-                </div>
+
+                    <Link
+                      href={`/jobs/${item.jobDetails?._id}`}
+                      className="font-semibold text-slate-800 group-hover:text-[#124d46] transition-colors text-base"
+                    >
+                      {item.jobDetails?.title || "Untitled Position"}
+                    </Link>
+
+                    {item.jobDetails?.type && (
+                      <span
+                        className={`inline-flex items-center justify-center px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider rounded-full ${jobTypeBadge[item.jobDetails?.type] ?? "bg-slate-100 text-slate-700"
+                          }`}
+                      >
+                        {item.jobDetails?.type}
+                      </span>
+                    )}
+
+                    {/* Applied Badge */}
+                    {isApplied && (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wider rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                        <span>Applied ✓</span>
+                      </span>
+                    )}
+                  </div>
+
 
                 <div className="flex flex-wrap items-center gap-y-2 gap-x-5 text-slate-500 text-sm pl-11">
                   <span className="flex items-center gap-2 text-slate-700 font-medium">
@@ -238,7 +264,8 @@ export default function SavedJobsTable() {
                 </Button>
               </div>
             </div>
-          ))}
+          );
+        })}
         </div>
       )}
     </div>

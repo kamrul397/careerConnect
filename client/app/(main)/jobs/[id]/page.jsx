@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
@@ -34,61 +35,40 @@ import {
 export default function JobDetailsPage() {
   const { id } = useParams();
   const router = useRouter();
+  const queryClient = useQueryClient();
+
 
   const { dbUser, user } = useAuth();
-
-  const [job, setJob] = useState(null);
-  const [alreadyApplied, setAlreadyApplied] = useState(false);
   const [applying, setApplying] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
 
-  useEffect(() => {
-    if (id) {
-      loadJob();
-    }
-  }, [id]);
+  // 1. Fetch Job details with 5-minute cache
+  const { data: job = null, isLoading: jobLoading } = useQuery({
+    queryKey: ["approvedJob", id],
+    queryFn: () => getApproveJobById(id),
+    enabled: !!id,
+    staleTime: 1000 * 60 * 5,
+  });
 
-  useEffect(() => {
-    if (job && dbUser?.email) {
-      checkApplication();
-      checkSaved();
-    }
-  }, [job, dbUser]);
+  // 2. Check if already applied
+  const { data: alreadyApplied = false } = useQuery({
+    queryKey: ["checkApplied", job?._id, dbUser?.email],
+    queryFn: () => checkApplied(job._id, dbUser.email),
+    enabled: !!job?._id && !!dbUser?.email,
+    staleTime: 1000 * 60 * 2,
+  });
 
-  const loadJob = async () => {
-    try {
-      const data = await getApproveJobById(id);
-      setJob(data);
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to load job.");
-    }
-  };
+  // 3. Check saved status
+  const { data: savedJobsData = [] } = useQuery({
+    queryKey: ["savedJobs", dbUser?.email],
+    queryFn: getSavedJobs,
+    enabled: !!job?._id && dbUser?.role === "candidate",
+    staleTime: 1000 * 60 * 5,
+  });
 
-  const checkApplication = async () => {
-    if (!job || !dbUser?.email) return;
+  const isSaved = savedJobsData.some(
+    (item) => item.jobDetails?._id === job?._id
+  );
 
-    try {
-      const applied = await checkApplied(job._id, dbUser.email);
-      setAlreadyApplied(applied);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const checkSaved = async () => {
-    if (!job || dbUser?.role !== "candidate") return;
-
-    try {
-      const savedJobs = await getSavedJobs();
-      const alreadySaved = savedJobs.some(
-        (item) => item.jobDetails?._id === job._id
-      );
-      setIsSaved(alreadySaved);
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   const handleApply = async () => {
     if (!dbUser?.email) {
@@ -112,7 +92,8 @@ export default function JobDetailsPage() {
       });
 
       toast.success("Application submitted successfully!");
-      setAlreadyApplied(true);
+      queryClient.invalidateQueries({ queryKey: ["checkApplied", job._id] });
+      queryClient.invalidateQueries({ queryKey: ["candidateApplications"] });
 
       setTimeout(() => {
         router.push("/dashboard/candidate/my-applications");
@@ -132,23 +113,19 @@ export default function JobDetailsPage() {
     }
 
     if (isSaved) {
-      // Optimistic update
-      setIsSaved(false);
       try {
         await removeSavedJob(job._id);
         toast.success("Job removed from saved!");
+        queryClient.invalidateQueries({ queryKey: ["savedJobs"] });
       } catch (error) {
-        setIsSaved(true);
         toast.error("Failed to remove saved job.");
       }
     } else {
-      // Optimistic update
-      setIsSaved(true);
       try {
         await saveJob(job._id);
         toast.success("Job saved!");
+        queryClient.invalidateQueries({ queryKey: ["savedJobs"] });
       } catch (error) {
-        setIsSaved(false);
         toast.error(error.response?.data?.message || "Failed to save job.");
       }
     }

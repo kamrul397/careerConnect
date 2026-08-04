@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 import {
   FaBriefcase,
   FaUsers,
@@ -49,38 +50,19 @@ const candidateOutcomeData = [
 ];
 
 export default function AboutContent() {
-  const [activeJobsCount, setActiveJobsCount] = useState(null);
-  const [jobSeekersCount, setJobSeekersCount] = useState(null);
-  const [companiesCount, setCompaniesCount] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { data: statsData, isLoading: loading } = useQuery({
+    queryKey: ["publicStats"],
+    queryFn: async () => {
+      const { data } = await axios.get("/api/stats/public");
+      return data?.stats || {};
+    },
+    staleTime: 1000 * 60 * 10, // 10 minutes cache
+  });
 
-  useEffect(() => {
-    let isMounted = true;
+  const activeJobsCount = statsData?.activeJobs ?? null;
+  const jobSeekersCount = statsData?.jobSeekers ?? null;
+  const companiesCount = statsData?.companies ?? null;
 
-    const fetchStats = async () => {
-      try {
-        const { data } = await axios.get("/api/stats/public");
-
-        if (isMounted && data?.stats) {
-          setActiveJobsCount(data.stats.activeJobs || 0);
-          setJobSeekersCount(data.stats.jobSeekers || 0);
-          setCompaniesCount(data.stats.companies || 0);
-        }
-      } catch (error) {
-        console.error("Error fetching dynamic stats:", error);
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    };
-
-    fetchStats();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   const stats = [
     {
@@ -308,58 +290,58 @@ export default function AboutContent() {
       </section>
 
       {/* 3. Company Approval & Admin Contact Section */}
-      <section className="max-w-7xl mx-auto px-6 py-12">
-        <div className="bg-gradient-to-br from-[#124d46] via-[#0d3d37] to-[#072421] text-white rounded-3xl p-8 md:p-12 shadow-2xl relative overflow-hidden">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+        <div className="bg-gradient-to-br from-[#124d46] via-[#0d3d37] to-[#072421] text-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-12 shadow-2xl relative overflow-hidden">
           {/* Ambient Decorative Shapes */}
-          <div className="absolute -top-24 -right-24 w-80 h-80 bg-teal-400/20 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-emerald-400/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -top-24 -right-24 w-60 sm:w-80 h-60 sm:h-80 bg-teal-400/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-24 -left-24 w-60 sm:w-80 h-60 sm:h-80 bg-emerald-400/20 rounded-full blur-3xl pointer-events-none" />
 
-          <div className="relative z-10 grid lg:grid-cols-12 gap-8 items-center">
+          <div className="relative z-10 grid lg:grid-cols-12 gap-6 sm:gap-8 items-center">
             {/* Policy Explanation */}
-            <div className="lg:col-span-7 space-y-6">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-teal-500/20 border border-teal-400/30 text-teal-200 text-xs font-semibold uppercase tracking-wider">
-                <FaShieldAlt className="text-teal-400 text-sm" />
+            <div className="lg:col-span-7 space-y-4 sm:space-y-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-teal-500/20 border border-teal-400/30 text-teal-200 text-[11px] sm:text-xs font-semibold uppercase tracking-wider max-w-full flex-wrap">
+                <FaShieldAlt className="text-teal-400 text-xs sm:text-sm shrink-0" />
                 <span>Verified Governance & Admin Approval</span>
               </div>
 
-              <h2 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight">
                 Company Registration & Admin Verification
               </h2>
 
-              <p className="text-teal-100 text-sm md:text-base leading-relaxed">
+              <p className="text-teal-100 text-xs sm:text-sm md:text-base leading-relaxed">
                 To guarantee complete platform legitimacy, eliminate fake job postings, and safeguard job seekers, <strong>only administrators can approve new company profiles and listings</strong>.
               </p>
 
-              <div className="bg-teal-900/50 border border-teal-400/30 rounded-2xl p-5 space-y-3">
-                <div className="flex items-center gap-3 text-teal-200 font-bold text-sm">
-                  <FaLock className="text-teal-400" />
+              <div className="bg-teal-900/50 border border-teal-400/30 rounded-xl sm:rounded-2xl p-4 sm:p-5 space-y-2 sm:space-y-3">
+                <div className="flex items-start gap-2.5 sm:gap-3 text-teal-200 font-bold text-xs sm:text-sm">
+                  <FaLock className="text-teal-400 mt-0.5 shrink-0" />
                   <span>Registering a Company or Specific Company Details?</span>
                 </div>
-                <p className="text-teal-100/90 text-xs md:text-sm leading-relaxed">
+                <p className="text-teal-100/90 text-xs sm:text-sm leading-relaxed">
                   If you are interested in registering a new company or posting a job under specific company credentials, please reach out to the Admin directly. The administrator will review, configure, and approve your company details.
                 </p>
               </div>
             </div>
 
             {/* Contact Action Cards */}
-            <div className="lg:col-span-5 bg-white text-slate-900 p-6 md:p-8 rounded-2xl shadow-xl space-y-6">
-              <div className="border-b border-slate-100 pb-4">
-                <h3 className="text-lg font-bold text-slate-900">Direct Admin Contact</h3>
-                <p className="text-slate-500 text-xs mt-1">Get in touch for company registration & verified employer onboarding.</p>
+            <div className="lg:col-span-5 bg-white text-slate-900 p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl shadow-xl space-y-4 sm:space-y-6">
+              <div className="border-b border-slate-100 pb-3 sm:pb-4">
+                <h3 className="text-base sm:text-lg font-bold text-slate-900">Direct Admin Contact</h3>
+                <p className="text-slate-500 text-xs mt-0.5 sm:mt-1">Get in touch for company registration & verified employer onboarding.</p>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 {/* Email Card */}
                 <a
                   href="mailto:kamrulislam25262800@gmail.com"
-                  className="flex items-center gap-4 p-4 rounded-xl border border-slate-200 hover:border-teal-500 hover:bg-teal-50/50 transition-all duration-200 group"
+                  className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl border border-slate-200 hover:border-teal-500 hover:bg-teal-50/50 transition-all duration-200 group"
                 >
-                  <div className="w-12 h-12 rounded-xl bg-teal-100 text-[#124d46] flex items-center justify-center text-xl group-hover:scale-105 transition duration-200">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-teal-100 text-[#124d46] flex items-center justify-center text-lg sm:text-xl shrink-0 group-hover:scale-105 transition duration-200">
                     <FaEnvelope />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Official Email</div>
-                    <div className="text-sm font-bold text-slate-900 truncate group-hover:text-[#124d46] transition duration-200">
+                    <div className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider">Official Email</div>
+                    <div className="text-xs sm:text-sm font-bold text-slate-900 break-all sm:break-normal group-hover:text-[#124d46] transition duration-200">
                       kamrulislam25262800@gmail.com
                     </div>
                   </div>
@@ -370,23 +352,23 @@ export default function AboutContent() {
                   href="https://wa.me/8801894565173"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-4 p-4 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 transition-all duration-200 group"
+                  className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 transition-all duration-200 group"
                 >
-                  <div className="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl group-hover:scale-105 transition duration-200">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg sm:text-xl shrink-0 group-hover:scale-105 transition duration-200">
                     <FaWhatsapp />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">WhatsApp & Direct Phone</div>
-                    <div className="text-sm font-bold text-slate-900 truncate group-hover:text-emerald-700 transition duration-200">
+                    <div className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider">WhatsApp & Direct Phone</div>
+                    <div className="text-xs sm:text-sm font-bold text-slate-900 truncate group-hover:text-emerald-700 transition duration-200">
                       +880 1894-565173
                     </div>
                   </div>
                 </a>
               </div>
 
-              <div className="pt-2 text-center">
-                <span className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500">
-                  <FaCheckCircle className="text-emerald-500" />
+              <div className="pt-1 sm:pt-2 text-center">
+                <span className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-medium text-slate-500">
+                  <FaCheckCircle className="text-emerald-500 shrink-0" />
                   Fast Admin response for employer verification
                 </span>
               </div>
